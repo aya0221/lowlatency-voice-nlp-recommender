@@ -1,0 +1,15 @@
+# Ignore Python virtual environment
+venv-voice-ai-coach/
+
+# __pycache__ and other Python garbage
+__pycache__/
+*.pyc
+*.pyo
+
+# Data and logs (if sensitive or large)
+data/
+*.log
+
+# Jupyter notebook checkpoints (if any)
+.ipynb_checkpoints/
+

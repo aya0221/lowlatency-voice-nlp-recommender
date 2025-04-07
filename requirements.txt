@@ -1,0 +1,13 @@
+openai-whisper
+transformers
+torch
+spacy
+sentence-transformers
+elasticsearch
+opensearch-py
+mlflow
+apache-airflow
+streamlit
+pydub
+python-dotenv
+
