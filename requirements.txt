@@ -1,6 +1,6 @@
 openai-whisper
-transformers
-torch
+transformers==4.36.2
+torch==2.2.2
 spacy
 sentence-transformers
 elasticsearch
@@ -10,4 +10,3 @@ apache-airflow
 streamlit
 pydub
 python-dotenv
-

@@ -1,15 +1,27 @@
-# Ignore Python virtual environment
-venv-voice-ai-coach/
-
-# __pycache__ and other Python garbage
+# Python artifacts
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 
-# Data and logs (if sensitive or large)
-data/
+# Environment
+venv-voice-ai-coach/
+.env
+
+# Data and models
+voice_assistant/data/*.wav
+voice_assistant/data/*.csv
+voice_assistant/data/*.json
+voice_assistant/models/**
+!voice_assistant/models/intent_classifier/label_map.json  # keep only label map
+voice_assistant/logs/
+logs/
+
+# Docker volumes
 *.log
 
-# Jupyter notebook checkpoints (if any)
-.ipynb_checkpoints/
+# OS/system
+.DS_Store
 
+# MLflow
+mlruns/
