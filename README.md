@@ -6,12 +6,20 @@ A fully production-ready, voice-activated assistant that transcribes spoken comm
 
 ## 🚀 Features
 
-- **Speech-to-Text (ASR)**: Real-time voice transcription using OpenAI's Whisper.
-- **Intent Classification**: Fine-tuned a DistilBERT model with GPU acceleration to accurately classify workout-related intents. Enabled task-specific prediction through hyperparameter tuning and training over custom data, achieving high confidence and low loss.
+- **🎙️ Real-Time ASR (Speech-to-Text)**  
+  Transcribes live voice commands using OpenAI Whisper for fast and robust audio understanding.
 
-- **Named Entity Recognition (NER)**: Hybrid spaCy pipeline with ML + rule-based entity extractors.
-- **Semantic Search**: Fast and relevant workout retrieval using OpenSearch.
-- **Modular Architecture**: Clean, testable, extendable Python project structure.
+- **🧠 Intent Classification (Fine-tuned DistilBERT)**  
+  Intent Classification (Fine-tuned DistilBERT): Extracts user intent (e.g., search class, track progress) from spoken text using a DistilBERT model I fine-tuned on task-specific examples. Trained on custom-labeled data with GPU acceleration and hyperparameter optimization to maximize accuracy and confidence.
+
+- **🔍 Named Entity Recognition (NER)**  
+  Hybrid spaCy pipeline combining ML-based NER with custom rule-based matchers to extract structured entities like duration, intensity, instructor, workout type, and goals.
+
+- **⚡ Semantic Search & Recommendations (OpenSearch)**  
+  Vectorized search across structured workout data using boosted relevance scoring. Returns personalized workout matches based on user input semantics.
+
+- **🧩 Modular, Extensible Architecture**  
+  Clean, well-documented Python modules with separation of concerns across ASR, NLU, and search layers — ready for scaling, fine-tuning, or API integration.
 
 ---
 
@@ -22,6 +30,19 @@ Voice Input → Whisper (ASR) → Intent Classifier → NER → OpenSearch Query
 ```
 
 ---
+
+## 🔍 End-to-End Pipeline Demo
+
+The following screenshot shows the full real-time pipeline in action:
+
+1. Whisper-based voice transcription  
+2. Intent detection via fine-tuned DistilBERT  
+3. Entity recognition using spaCy + keyword matcher  
+4. Relevance-ranked search with OpenSearch  
+5. Top 10 personalized workout recommendations  
+
+![Demo Output](./assets/demo_pipeline_output.png)
+
 
 ## 🔧 Technologies & Tools
 
@@ -65,9 +86,6 @@ python -m venv venv-voice-ai-coach
 source venv-voice-ai-coach/bin/activate
 pip install -r requirements.txt
 ```
-
----
-Here’s the cleaned-up, professional version of that section, rewritten as a top ML engineer would structure it:
 
 ---
 
