@@ -4,7 +4,7 @@ import re
 # --- Rule-based lookup tables ---
 WORKOUT_TYPES = [
     "yoga", "meditation", "cycling", "bike", "ride", "run", "treadmill", "strength",
-    "cardio", "HIIT", "stretching", "pilates", "walking", "bootcamp"
+    "cardio", "HIIT", "stretching", "pilates", "walking", "bootcamp",
 ]
 GOALS = [
     "build muscle", "lose weight", "fat burn", "mobility", "flexibility",
