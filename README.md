@@ -1,83 +1,96 @@
+
+---
+
 # Voice-Driven AI Workout Assistant
 
-A fully production-ready, voice-activated assistant that transcribes spoken commands, classifies user intent, extracts workout-specific entities, and retrieves tailored workout recommendations from OpenSearch.
+A production-grade, voice-enabled NLP assistant that transcribes real-time audio, extracts structured workout intents and entities, and returns personalized recommendations via OpenSearch.
 
 ---
 
-## 🚀 Features
+## Overview
 
-- **🎙️ Real-Time ASR (Speech-to-Text)**  
-  Transcribes live voice commands using OpenAI Whisper for fast and robust audio understanding.
+This project demonstrates an end-to-end machine learning pipeline that takes spoken user input and delivers personalized workout recommendations. The architecture is modular, production-ready, and optimized for accuracy, latency, and future deployment.
 
-- **🧠 Intent Classification (Fine-tuned DistilBERT)**  
-  Intent Classification (Fine-tuned DistilBERT): Extracts user intent (e.g., search class, track progress) from spoken text using a DistilBERT model I fine-tuned on task-specific examples. Trained on custom-labeled data with GPU acceleration and hyperparameter optimization to maximize accuracy and confidence.
+### Pipeline
 
-- **🔍 Named Entity Recognition (NER)**  
-  Hybrid spaCy pipeline combining ML-based NER with custom rule-based matchers to extract structured entities like duration, intensity, instructor, workout type, and goals.
-
-- **⚡ Semantic Search & Recommendations (OpenSearch)**  
-  Vectorized search across structured workout data using boosted relevance scoring. Returns personalized workout matches based on user input semantics.
-
-- **🧩 Modular, Extensible Architecture**  
-  Clean, well-documented Python modules with separation of concerns across ASR, NLU, and search layers — ready for scaling, fine-tuning, or API integration.
-
----
-
-## 🧠 Pipeline Overview
-
-```bash
-Voice Input → Whisper (ASR) → Intent Classifier → NER → OpenSearch Query → Workout Results
+```
+Voice Input
+→ Whisper (ASR)
+→ Intent Classification (Fine-Tuned DistilBERT)
+→ Named Entity Recognition (spaCy + rule-based matcher)
+→ OpenSearch Query (boosted relevance)
+→ Top-K Workout Recommendations
 ```
 
 ---
 
-## 🔍 End-to-End Pipeline Demo
+## Key Features
 
-The following screenshot shows the full real-time pipeline in action:
+- **Speech-to-Text (Whisper ASR)**  
+  Real-time voice transcription using OpenAI’s Whisper, optimized for natural commands and multi-accent robustness.
 
-1. Whisper-based voice transcription  
-2. Intent detection via fine-tuned DistilBERT  
-3. Entity recognition using spaCy + keyword matcher  
-4. Relevance-ranked search with OpenSearch  
-5. Top 10 personalized workout recommendations  
+- **Intent Classification (Fine-Tuned DistilBERT)**  
+  Classifies user intent (e.g., `search_class`, `track_metric`) using a transformer model fine-tuned on 1000+ examples. Training used GPU acceleration, hyperparameter tuning, and early stopping to maximize confidence.
+
+- **Entity Extraction (spaCy + Rule-based)**  
+  Combines spaCy’s statistical NER with a custom rule-based keyword matcher to extract fields like workout type, duration, goal, instructor, and intensity.
+
+- **Search & Recommendation (OpenSearch)**  
+  Indexed workout metadata is queried using relevance boosting (type, time, instructor, tags). Returns top-K personalized matches with similarity scoring.
+
+- **Modular Architecture**  
+  ASR, NLU, and Search are decoupled into clean, testable modules ready for production or further research iterations.
+
+---
+
+## Technologies Used
+
+- Python 3.11
+- HuggingFace Transformers (`distilbert-base-uncased`)
+- PyTorch (fine-tuning with GPU)
+- spaCy (NER)
+- OpenAI Whisper (ASR)
+- OpenSearch (search engine)
+- Docker (OpenSearch cluster)
+- GPU for training (NVIDIA RTX 4050)
+
+---
+
+## Pipeline Demo
+
+Here’s the assistant in action, showing voice input → NLP extraction → real-time recommendations.
+
+> Example voice input:  
+> _“Find me a 20-minute yoga with Alex”_
 
 ![Demo Output](./assets/demo_pipeline_output.png)
 
-
-## 🔧 Technologies & Tools
-
-- **Python 3.11**
-- **PyTorch / HuggingFace Transformers** (intent classification)
-- **spaCy** (NER with custom patterns)
-- **OpenAI Whisper** (ASR)
-- **OpenSearch** (indexed retrieval)
-- **Docker + Docker Compose** (local OpenSearch cluster)
-- **MLflow** *(optional)*: for model tracking
-- **Airflow** *(optional)*: for orchestration
-
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```bash
 voice_assistant/
-├── asr/                  # Whisper-based ASR
-│   └── transcribe.py     # Transcribes audio into text
-│   └── record_and_transcribe.py     # Records audio and transcribes
-├── data/                 # Input audio + training CSVs
-├── models/               # Fine-tuned intent classifier
-├── nlu/                  # Intent & entity extraction logic
-│   ├── custom_entity_extractor.py
+├── asr/                    # Whisper ASR pipeline
+│   ├── transcribe.py
+│   └── record_and_transcribe.py
+├── data/                   # Audio inputs + training CSVs
+├── models/                 # Fine-tuned model weights
+├── nlu/                    # Intent & Entity logic
 │   ├── train_intent_classifier.py
-│   └── nlu_pipeline.py   # End-to-end NLP pipeline
-├── search/               # OpenSearch indexing + query
-├── utils/                # Configs and shared helpers
-└── app.py                # (Optional) CLI or UI runner
+│   ├── nlu_pipeline.py
+│   └── custom_entity_extractor.py
+├── search/                 # Indexing + Query with OpenSearch
+│   ├── index_workouts.py
+│   └── search_workouts.py
+└── utils/                  # Configs
 ```
 
 ---
 
-## 📦 Installation
+## Installation and Usage
+
+### Environment Setup
 
 ```bash
 git clone https://github.com/aya0221/voice-ai-workout-assistant.git
@@ -87,109 +100,113 @@ source venv-voice-ai-coach/bin/activate
 pip install -r requirements.txt
 ```
 
----
-
-## 🗣️ Run the Assistant (End-to-End)
+### Run End-to-End Assistant
 
 ```bash
-# Run the full voice-driven NLP pipeline:
 python voice_assistant/nlu/nlu_pipeline.py
 ```
 
-This will:
-
-- Record 5 seconds of speech via microphone
-- Transcribe the `.wav` using Whisper ASR
-- Classify the intent (fine-tuned DistilBERT)
-- Extract structured entities (via spaCy + rule-based matcher)
-- Query OpenSearch index and return top matching workouts
+This runs: Voice input → Transcription → Intent + Entity Extraction → OpenSearch Query → Workout Recommendation
 
 ---
 
-## 📊 Intent Classes
+## Intent Classification (Fine-Tuned DistilBERT)
 
-- `search_class`
-- `track_metric`
-- `greeting`
+The system uses a fine-tuned transformer to classify user intent with high precision.
 
-All fine-tuned from `distilbert-base-uncased` on 1000+ balanced training examples.
+| Parameter         | Value                           |
+|------------------|----------------------------------|
+| Model             | DistilBERT (fine-tuned)         |
+| Training Set      | 1000+ labeled utterances        |
+| Epochs            | 20                              |
+| Batch Size        | 16 (train) / 8 (eval)           |
+| Learning Rate     | 2e-5 with warmup                |
+| Hardware          | RTX 4050                        |
+| Best Checkpoint   | Step 47 (early convergence)     |
+| Final Accuracy    | 100% (held-out set)             |
+| Final Loss        | 1.60 → 0.0005                    |
 
----
-
-## 🧠 Entity Types Extracted
-
-| Entity       | Example                |
-|--------------|-------------------------|
-| `time`       | "30 minute"            |
-| `intensity`  | "low impact"          |
-| `person`     | "Robin"               |
-| `goal`       | "lose weight"         |
-| `type`       | "cycling", "yoga"    |
-| `tag`        | "endurance", "mood"  |
+The best model was automatically selected using `load_best_model_at_end=True`, restoring checkpoint-47 based on highest validation accuracy.
 
 ---
 
-## 🧪 Model Training
+## Entity Recognition (spaCy + Rules)
 
-Run intent classifier fine-tuning:
+A hybrid NER pipeline extracts structured metadata from natural language:
+
+| Entity        | Example           |
+|---------------|-------------------|
+| `time`        | “30 minutes”       |
+| `intensity`   | “low impact”       |
+| `person`      | “Robin”            |
+| `workout_type`| “yoga”, “ride”     |
+| `goal`        | “lose weight”      |
+| `tags`        | “cardio”, “relax”  |
+
+This enables coverage of both traditional ML-extracted entities and custom business domain keywords.
+
+---
+
+## Search & Recommendation (OpenSearch)
+
+### Index Workouts
+
+```bash
+docker-compose up -d          # Start OpenSearch
+python voice_assistant/search/index_workouts.py
+```
+
+### Retrieval Logic
+
+- Relevance boosting on instructor, duration, intensity, type
+- Synonym normalization (e.g., “bike”, “ride” → “cycling”)
+- Duration range matching (±5 mins)
+- Goal-to-tag mapping (e.g., “lose weight” → “cardio”, “fat burn”)
+
+Results are ranked by OpenSearch `_score` and returned in descending order.
+
+---
+
+## Model Training
+
+To fine-tune the intent classifier on new data:
+
 ```bash
 python voice_assistant/nlu/train_intent_classifier.py
 ```
 
-MLflow or custom logs can be integrated for reproducibility.
+Outputs:
+
+- `model.safetensors` – final model
+- `tokenizer/`, `label_map.json`
+- Trainer logs printed to console or MLflow (if enabled)
 
 ---
 
-## 🔎 Indexing Workouts (OpenSearch)
+## Future Enhancements
+
+> Prioritized for production-readiness and ML engineering interview relevance:
+
+- Web frontend (Streamlit or React)
+- Follow-up questions / conversational flow
+- HuggingFace Spaces hosting
+- MLflow logging + visualization
+- Airflow DAG for automated indexing and retraining
+
+---
+
+## ASR Test (Transcription Only)
 
 ```bash
-# Start OpenSearch cluster
-sudo docker-compose up -d
-
-# Index data
-python voice_assistant/search/index_workouts.py
-```
-
----
-
-## 🧼 Best Practices
-
-- ✅ Modular, reusable components
-- ✅ Clear logging for demo/debug
-- ✅ Scalable for future domain extensions
-- ✅ Easy to plug into any UI/frontend
-
----
-
-## 🧠 Future Work
-
-- 🎙️ Frontend voice interface (Streamlit or React)
-- 🤖 Chatbot-style follow-up for clarification
-- 🌍 Deployment on HuggingFace Spaces or local Docker API
-- 📈 MLflow integration for training runs
-- ⏰ Airflow DAG for pipeline automation
-
-
----
-## 🔊 Test Only ASR (Speech → Text)
-
-```bash
-# Record a 5-second voice command
 ffmpeg -f alsa -i default -t 5 voice_assistant/data/input.wav
-
-# Run ASR transcription only
 python voice_assistant/asr/transcribe.py --file voice_assistant/data/input.wav
 ```
 
-**Expected Output:**
+---
 
-```
-Loading Whisper model...
-Transcribing...
-Transcription: find me a 30 minute ride with Cody
-```
+## Contact
 
---- 
+For questions or opportunities, contact:  
+**ayaoshima.us@gmail.com**
 
-## 📬 Contact
-For technical questions, feel free to reach out via the repo's issues tab or email (ayaoshima.us@gmail.com).
+---
