@@ -1,6 +1,3 @@
-
----
-
 # Voice-Driven AI Workout Assistant
 
 A production-grade, voice-enabled NLP assistant that transcribes real-time audio, extracts structured workout intents and entities, and returns personalized recommendations via OpenSearch.
@@ -206,7 +203,5 @@ python voice_assistant/asr/transcribe.py --file voice_assistant/data/input.wav
 
 ## Contact
 
-For questions or opportunities, contact:  
+For questions, opportunities, or collaborations, contact:  
 **ayaoshima.us@gmail.com**
-
----
