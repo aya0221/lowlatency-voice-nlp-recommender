@@ -60,6 +60,10 @@ Here’s the assistant in action, showing voice input → NLP extraction → rea
 > Example voice input:  
 > _“Find me a 20-minute yoga with Alex”_
 
+### 🎥 Demo Video
+
+[![Watch the demo](assets/demo_thumbnail.png)](assets/demo.mp4)
+
 ![Demo Output](./assets/demo_pipeline_output.png)
 
 ---
