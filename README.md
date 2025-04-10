@@ -62,9 +62,7 @@ Here’s the assistant in action, showing voice input → NLP extraction → rea
 
 ### 🎥 Demo Video
 
-[![Watch the demo](assets/demo_thumbnail.png)](assets/demo.mp4)
-
-![Demo Output](./assets/demo_pipeline_output.png)
+[![Watch the demo on YouTube](https://img.youtube.com/vi/GDH2nT_EzUI/hqdefault.jpg)](https://youtu.be/GDH2nT_EzUI)
 
 ---
 
