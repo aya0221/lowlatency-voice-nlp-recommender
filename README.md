@@ -80,9 +80,6 @@ voice_ui/                       # React + Tailwind frontend (calls /api)
 ```
 
 ---
-Absolutely — here’s a **refined, sharper, production-grade version** of the **Setup & Run** section, written with precision, technical clarity, and a tone that reflects professional engineering standards:
-
----
 
 ## Setup & Run
 
