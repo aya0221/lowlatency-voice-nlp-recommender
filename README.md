@@ -191,10 +191,6 @@ docker-compose up -d
 
 ---
 
-Here's a refined and polished version of that section — structured, precise, and written as a top-tier ML engineer documenting a production-ready system:
-
----
-
 ## NLP Model Fine-Tuned for Intent
 
 The intent classifier is a fine-tuned `distilbert-base-uncased` transformer, optimized to map spoken user queries to high-level task categories (e.g., `search_class`, `track_metric`).  
