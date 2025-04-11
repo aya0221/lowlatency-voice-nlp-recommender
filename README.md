@@ -190,36 +190,37 @@ docker-compose up -d
 
 ## NLP Model Fine-Tuned for Intent
 
-The intent classifier is a fine-tuned `distilbert-base-uncased` transformer, optimized to map spoken user queries to high-level task categories (e.g., `search_class`, `track_metric`).  
-Training was executed on a local GPU with evaluation-driven checkpointing to ensure early convergence and optimal generalization.
+A domain-specific intent classifier was built by fine-tuning the `distilbert-base-uncased` transformer to recognize high-level task directives from natural speech (e.g., `search_class`, `track_metric`, `greeting`).  
+Training was conducted on GPU with evaluation-based early stopping and automatic best checkpoint restoration to ensure maximum generalization performance.
 
-| Parameter         | Value                           |
-|-------------------|---------------------------------|
-| Model             | `distilbert-base-uncased`       |
-| Training Samples  | 1000+ task-specific utterances  |
-| Epochs            | 20                              |
-| Batch Size        | 16 (train) / 8 (eval)           |
-| Learning Rate     | 2e-5 with warmup and decay      |
-| Device            | NVIDIA RTX 4050                 |
-| Best Checkpoint   | Step 47 (early convergence)     |
-| Final Accuracy    | 100% (held-out set)             |
-| Final Loss        | ↓ from 1.60 → 0.0005            |
+| Parameter         | Value                             |
+|-------------------|-----------------------------------|
+| Model             | `distilbert-base-uncased`         |
+| Training Samples  | 1000+ curated, balanced utterances |
+| Epochs            | 20                                |
+| Batch Size        | 16 (train) / 8 (eval)             |
+| Learning Rate     | 2e-5 with warmup and decay        |
+| Device            | NVIDIA RTX 4050                   |
+| Best Checkpoint   | Step 47 (early convergence)       |
+| Final Accuracy    | 100% on held-out eval set         |
+| Final Loss        | ↓ from 1.60 → 0.0005              |
 
-> `load_best_model_at_end=True` ensured that the model with highest validation accuracy (checkpoint-47) was restored and deployed in the production pipeline.
+> `load_best_model_at_end=True` ensured automatic selection of the best-performing checkpoint (`checkpoint-47`), which was deployed in the production inference pipeline.
 
 ---
 
 ## Model Training
 
-To retrain the intent classifier:
+To reproduce or retrain the intent classifier:
 
 ```bash
 python voice_assistant/nlu/train_intent_classifier.py
 ```
 
-Artifacts:
-- `model.safetensors`, `tokenizer/`, `label_map.json`
-- Logs training metrics to console (or MLflow if enabled)
+Outputs:
+- Fine-tuned model: `model.safetensors`
+- Tokenizer and label mapping: `tokenizer/`, `label_map.json`
+- Training metrics: Console logs (MLflow integration optional)
 
 ---
 
