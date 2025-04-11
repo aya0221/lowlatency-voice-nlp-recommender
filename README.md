@@ -216,7 +216,7 @@ Training was executed on a local GPU with evaluation-driven checkpointing to ens
 
 ---
 
-## 🧪 Model Training
+## Model Training
 
 To retrain the intent classifier:
 
@@ -230,7 +230,7 @@ Artifacts:
 
 ---
 
-## 🧪 ASR Only
+## ASR Only
 
 ```bash
 ffmpeg -f alsa -i default -t 5 voice_assistant/data/input.wav
