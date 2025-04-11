@@ -4,7 +4,7 @@ import os
 import json
 import spacy
 from transformers import pipeline, DistilBertForSequenceClassification, DistilBertTokenizerFast
-
+import argparse
 # === Setup project root ===
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(project_root))
@@ -16,7 +16,7 @@ from voice_assistant.asr.record_and_transcribe import record_and_transcribe
 from voice_assistant.asr.transcribe import transcribe_audio
 
 # === Record user input ===
-speech_input = record_and_transcribe()
+# speech_input = record_and_transcribe()
 
 # === Load models ===
 print("[INFO] Loading intent classifier (fine-tuned DistilBERT model)...")
@@ -76,16 +76,48 @@ def parse_text(text: str) -> dict:
     print(result)
     return result
 
-# === Run Pipeline ===
-if __name__ == "__main__":
-    parsed = parse_text(speech_input)
+def run_pipeline(transcript: str):
+    intent = detect_intent(transcript)
+    entities = extract_entities(transcript)
+    return {"intent": intent, "entities": entities}
 
-    print("\n================ SEARCH & RECOMMENDATION START ==================\n")
-    if parsed["intent"] == "search_class":
-        top_k = 10
-        results = search_workouts(parsed["intent"], parsed["entities"], top_k=top_k)
-        print("[INFO] Top {} recommended classes (ranked by relevance score):".format(top_k))
-        for res in results:
-            print(
-                f"- [{res['score']}] {res['title']} | {res['duration']} min | {res['instructor']} | {res['intensity']} | {res['type']}"
-            )
+def parse_text(text: str):
+    print(f"\n[INFO] User said: {text}")
+    parsed = run_pipeline(text)
+    print(f"[RESULT] Parsed: {parsed}")
+    return parsed
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cli", action="store_true", help="Run end-to-end pipeline on CLI")
+    args = parser.parse_args()
+
+    if args.cli:
+        speech_input = record_and_transcribe()
+        parsed = parse_text(speech_input)
+
+        print("\n================ SEARCH & RECOMMENDATION START ==================\n")
+        if parsed["intent"] == "search_class":
+            top_k = 10
+            results = search_workouts(parsed["intent"], parsed["entities"], top_k=top_k)
+            print("[INFO] Top {} recommended classes (ranked by relevance score):".format(top_k))
+            for res in results:
+                print(
+                    f"- [{res['score']}] {res['title']} | {res['duration']} min | {res['instructor']} | {res['intensity']} | {res['type']}"
+                )
+
+
+# === Run Pipeline ===
+# if __name__ == "__main__":
+#     parsed = parse_text(speech_input)
+
+#     print("\n================ SEARCH & RECOMMENDATION START ==================\n")
+#     if parsed["intent"] == "search_class":
+#         top_k = 10
+#         results = search_workouts(parsed["intent"], parsed["entities"], top_k=top_k)
+#         print("[INFO] Top {} recommended classes (ranked by relevance score):".format(top_k))
+#         for res in results:
+#             print(
+#                 f"- [{res['score']}] {res['title']} | {res['duration']} min | {res['instructor']} | {res['intensity']} | {res['type']}"
+#             )
