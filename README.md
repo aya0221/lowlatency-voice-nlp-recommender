@@ -209,7 +209,7 @@ Training was conducted on GPU with evaluation-based early stopping and automatic
 
 ---
 
-## Model Training
+### Model Training
 
 To reproduce or retrain the intent classifier:
 
