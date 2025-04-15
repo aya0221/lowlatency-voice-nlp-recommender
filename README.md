@@ -1,7 +1,6 @@
-# # Voice-AI Workout Assistant: NLP Pipeline with Speech Recognition, Intent/Entity Classification, Srarch/Recommendations, and LLM-based Feedback
+## Voice-AI Workout Assistant: NLP Pipeline with Speech Recognition, Intent/Entity Classification, Srarch/Recommendations, and LLM-based Feedback
 
 A voice-driven personal fitness assistant built with automatic speech recognition (ASR), named entity recognition (NER), intent classification, and semantic search. Designed to simulate a natural-language fitness experience like Peloton’s voice assistant — supporting both English and multilingual voice input.
-```
 
 ---
 
@@ -10,14 +9,13 @@ This project was inspired by Peloton’s ML/NLP job description and aims to demo
 
 ---
 
-
 ## System Architecture
 
 ```
 Voice Input (Mic / UI)
         │
         ▼
-  Whisper ASR (Transcription)
+  Whisper ASR (Speech Recognition / Transcription)
         │
         ▼
   Intent Classifier (Fine-tuned DistilBERT)
@@ -26,7 +24,7 @@ Voice Input (Mic / UI)
   Entity Extractor (spaCy + Rules)
         │
         ▼
-  Query Constructor → OpenSearch
+  Query Constructor (OpenSearch)
         │
         ▼
  Ranked Workout Recommendations
