@@ -204,4 +204,6 @@ python voice_assistant/asr/transcribe.py --file voice_assistant/data/input.wav
 
 ## Contact
 
-**ayaoshima.us@gmail.com**
+[📧 ayaoshima.us@gmail.com](mailto:ayaoshima.us@gmail.com)  
+[🔗 LinkedIn](https://www.linkedin.com/in/ayaoshima/)
+
