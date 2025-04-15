@@ -35,18 +35,16 @@ Web UI (Text / Voice)
 
 ---
 
-## Technologies
+## Tech Stack
 
-- Python 3.11 / JavaScript (React)
-- OpenAI Whisper (ASR)
-- HuggingFace Transformers (DistilBERT)
-- PyTorch (GPU training)
-- spaCy (NER)
-- OpenSearch (ranking engine)
-- FastAPI (API server)
-- Vite + Tailwind CSS (UI)
-- Docker (OpenSearch)
-- NVIDIA RTX 4050 (local training)
+- **Languages**: Python, JavaScript (React)
+- **ASR**: OpenAI Whisper
+- **NLP**: spaCy (NER), Transformers (DistilBERT), PyTorch
+- **Search & Ranking**: OpenSearch (boosted fields), synonym + duration mapping
+- **LLM (Planned)**: GPT-based feedback + multilingual pipeline
+- **API & Frontend**: FastAPI, Vite, Tailwind, React
+- **Infra**: Docker, MLflow, TensorBoard
+- **Dev Tools**: Anaconda, Jupyter
 
 ---
 
