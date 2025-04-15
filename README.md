@@ -5,6 +5,12 @@ A voice-driven personal fitness assistant built with automatic speech recognitio
 
 ---
 
+## Why I Built This
+This project was inspired by Peloton’s ML/NLP job description and aims to demonstrate end-to-end capabilities in building scalable, voice-driven AI systems. The tech stack and use cases were designed to reflect real-world components like Whisper, spaCy, and OpenAI APIs.
+
+---
+
+
 ## System Architecture
 
 ```
