@@ -1,4 +1,4 @@
-# Voice-Driven AI Workout Assistant (ASR, NLP, OpenSearch, LLM-ready)
+# Personalized Fitness Recommender | ASR, NLP, NLU, Semantic Search
 A modular, production-grade voice assistant that transcribes real-time audio, extracts structured workout queries using NLP, and delivers ranked recommendations via OpenSearch. The system showcases scalable architecture, fine-tuned transformer models, and relevance-boosted semantic search.
 
 ---
