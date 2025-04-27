@@ -9,9 +9,7 @@ venv-voice-ai-coach/
 .env
 
 # Data and models
-voice_assistant/data/*.wav
-voice_assistant/data/*.csv
-voice_assistant/data/*.json
+voice_assistant/data/*
 voice_assistant/models/**
 !voice_assistant/models/intent_classifier/label_map.json  # keep only label map
 voice_assistant/logs/
@@ -25,3 +23,11 @@ logs/
 
 # MLflow
 mlruns/
+
+# hugging face deployment
+export_hf_model/
+
+#old files
+voice_assistant/nlu/__pycache__
+voice_assistant/nlu/entity_scripts/_old
+

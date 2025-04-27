@@ -9,7 +9,7 @@ import argparse
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(project_root))
 
-from voice_assistant.nlu.custom_entity_extractor import keyword_matcher
+from voice_assistant.nlu.custom_entity_scripts.custom_entity_extractor import keyword_matcher
 from voice_assistant.utils import config
 from voice_assistant.search.search_workouts import search_workouts
 from voice_assistant.asr.record_and_transcribe import record_and_transcribe
@@ -20,8 +20,7 @@ from voice_assistant.asr.transcribe import transcribe_audio
 
 # === Load models ===
 print("[INFO] Loading intent classifier (fine-tuned DistilBERT model)...")
-print("[INFO] Loading spaCy NER pipeline (en_core_web_sm)...")
-MODEL_DIR = os.path.join(project_root, "voice_assistant/models/intent_classifier")
+MODEL_DIR = os.path.join(project_root, "voice_assistant/models/intent_model")
 with open(os.path.join(MODEL_DIR, "label_map.json")) as f:
     label_to_id = json.load(f)
 id_to_label = {v: k for k, v in label_to_id.items()}
@@ -30,6 +29,7 @@ model = DistilBertForSequenceClassification.from_pretrained(MODEL_DIR)
 tokenizer = DistilBertTokenizerFast.from_pretrained(MODEL_DIR)
 intent_classifier = pipeline("text-classification", model=model, tokenizer=tokenizer, top_k=1)
 
+print(f"[INFO] Loading spaCy NER pipeline ({config.SPACY_MODEL})...")
 nlp = spacy.load(config.SPACY_MODEL)
 
 # === Entity Extraction ===
@@ -39,13 +39,17 @@ def extract_entities(text):
     entities = {}
 
     for ent in doc.ents:
-        if ent.label_ == "TIME":
-            entities["time"] = ent.text
-        elif ent.label_ == "PERSON":
-            entities["person"] = ent.text
+        label = ent.label_.lower()
+        entities[label] = ent.text
 
-    custom_entities = keyword_matcher(text)
-    entities.update(custom_entities)
+        # comment below when my entity model is fine-tuned.
+        # if ent.label_ == "TIME":
+        #     entities["time"] = ent.text
+        # elif ent.label_ == "PERSON":
+        #     entities["person"] = ent.text
+
+    # custom_entities = keyword_matcher(text)
+    # entities.update(custom_entities)
 
     print("[INFO] Extracted entities:")
     for key, value in entities.items():

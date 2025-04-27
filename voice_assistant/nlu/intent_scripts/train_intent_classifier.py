@@ -16,8 +16,8 @@ from sklearn.model_selection import train_test_split
 print(f"[INFO] Using device: {'GPU' if torch.cuda.is_available() else 'CPU'}")
 
 # === Config ===
-MODEL_DIR = "voice_assistant/models/intent_classifier"
-DATA_PATH = "voice_assistant/data/intent_training_data.csv"
+MODEL_DIR = "voice_assistant/models/intent_model"
+DATA_PATH = "voice_assistant/data/intent_data/intent_training_data.csv"
 
 # === Load & prepare data ===
 df = pd.read_csv(DATA_PATH)

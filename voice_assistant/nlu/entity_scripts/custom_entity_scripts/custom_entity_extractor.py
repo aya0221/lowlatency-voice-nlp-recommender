@@ -1,4 +1,3 @@
-# voice_assistant/nlu/custom_entity_extractor.py
 import re
 
 # --- Rule-based lookup tables ---
