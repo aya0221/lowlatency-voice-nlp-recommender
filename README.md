@@ -1,5 +1,7 @@
-# Personalized Fitness Recommender | ASR, NLP, NLU, Semantic Search
-A modular, production-grade voice assistant that transcribes real-time audio, extracts structured workout queries using NLP, and delivers ranked recommendations via OpenSearch. The system showcases scalable architecture, fine-tuned transformer models, and relevance-boosted semantic search.
+# Personalized Fitness Voice Recommender | Whisper ASR, Transformers, Semantic Search
+
+Production-grade modular system that transcribes real-time voice, extracts structured workout requests, and delivers ranked fitness class recommendations.  
+Built for scalability, robustness, and showcasing fine-tuned transformer models and custom semantic ranking.
 
 ---
 
@@ -8,52 +10,42 @@ A modular, production-grade voice assistant that transcribes real-time audio, ex
 ```
 Voice Input (Mic / UI)
         ↓
-Whisper ASR (Transcription)
+Whisper ASR (Audio Transcription)
         ↓
-Intent Classifier (Fine-tuned DistilBERT)
+Intent Classification (Fine-tuned DistilBERT)
         ↓
-Entity Extractor (spaCy + Rules)
+Entity Extraction (Fine-tuned RoBERTa + spaCy Transformer NER)
         ↓
-Query Constructor → OpenSearch
+Query Construction → OpenSearch + Custom Relevance Boosting
         ↓
 Ranked Workout Recommendations
         ↓
-LLM Feedback Generator (planned)
-        ↓
-Web UI (Text / Voice)
+Web UI Interaction (React) / LLM Feedback (planned)
 ```
 
 ---
 
 ## Engineering Highlights
 
-- **Modular Design**: Clean separation of ASR, NLU, search, and UI for testability and future scaling.
-- **Transformer-Based NLP**: Intent classification powered by fine-tuned DistilBERT for task-specific voice command understanding.
-- **Hybrid Entity Recognition**: Combines spaCy with domain-specific rule matchers to maximize coverage and accuracy.
-- **Boosted Ranking Engine**: OpenSearch used with weighted field relevance (e.g., instructor, duration, type) and synonym/goal normalization.
-- **Web UI Integration**: React frontend with full voice input + FastAPI backend for end-to-end interaction.
+- **Strict Modularization**: Isolated components for ASR, intent, entity, search, UI to ensure scalability and testability.
+- **Fine-Tuned Intent Detection**: DistilBERT-based classifier achieving **100% validation accuracy** for voice command understanding.
+- **Transformer-Based Entity Extraction**: RoBERTa fine-tuned with spaCy’s TransformerListener and Transition-Based Parser achieving **99.97% F1**.
+- **Custom Boosted Ranking Algorithm**: OpenSearch combined with hand-crafted field boosting, synonym normalization, and goal mapping for real-world ranking optimization.
+- **Voice-to-Search Full Pipeline**: Whisper → Intent → Entity → Boosted Search → Real-time Recommendation → Web UI.
+- **GPU-Optimized Training**: Entire model training executed on local Linux GPU environment.
 
 ---
 
 ## Tech Stack
 
-- **Languages**: Python, JavaScript (React)
-- **ASR**: OpenAI Whisper
-- **NLP**: spaCy (NER), Transformers (DistilBERT), PyTorch
-- **Search & Ranking**: OpenSearch (boosted fields), synonym + duration mapping
-- **LLM (Planned)**: GPT-based feedback + multilingual pipeline
-- **API & Frontend**: FastAPI, Vite, Tailwind, React
-- **Infra**: Docker, MLflow, TensorBoard
-- **Dev Tools**: Anaconda, Jupyter
-
----
-
-## Demo
-
-> Query example:  
-> _“Find me a 20-minute yoga with Alex”_
-
-[![Watch Demo on YouTube](https://img.youtube.com/vi/GDH2nT_EzUI/hqdefault.jpg)](https://youtu.be/GDH2nT_EzUI)
+- **Languages**: Python, JavaScript (React, Vite, Tailwind)
+- **ASR**: Whisper (openai/whisper-small.en)
+- **NLP Models**:
+  - **Intent**: DistilBERT (fine-tuned)
+  - **Entity**: RoBERTa-base + spaCy Transformer Pipeline
+- **Ranking**: OpenSearch + Custom Field Boosting
+- **Infra**: Docker, FastAPI (Backend), HuggingFace Hub (Model Hosting)
+- **Local Training**: Ubuntu Linux, CUDA 12.x, PyTorch GPU
 
 ---
 
@@ -61,13 +53,19 @@ Web UI (Text / Voice)
 
 ```bash
 voice_assistant/
-├── asr/                        # Whisper ASR
-├── nlu/                        # Intent + entity logic
-├── search/                     # OpenSearch indexing & query
-├── api/                        # FastAPI server
-├── models/                     # Fine-tuned model weights
-├── utils/                      # Configs
-voice_ui/                       # React web interface
+├── asr/                          # Whisper transcription
+├── nlu/
+│   ├── intent_scripts/            # Intent model fine-tuning
+│   ├── entity_scripts/            # Entity model fine-tuning, configs
+│   ├── nlu_pipeline.py            # Full voice → intent/entity → search pipeline
+├── models/
+│   ├── intent_model/              # Fine-tuned DistilBERT model
+│   ├── entity_model/              # Fine-tuned RoBERTa NER model
+├── search/                        # OpenSearch indexing and search query construction
+├── api/                           # FastAPI web server
+├── data/                         # Input data (ASR audio, NLU training datasets)
+├── utils/                         # .env, configuration loading
+voice_ui/                          # React web frontend
 ```
 
 ---
@@ -77,25 +75,25 @@ voice_ui/                       # React web interface
 ### Option 1: Web UI + API
 
 ```bash
-# Clone & setup backend
+# Install Backend
 git clone https://github.com/aya0221/Voice-AI-Workout-Assistant.git
 cd Voice-AI-Workout-Assistant
 python -m venv venv-voice-ai-coach
 source venv-voice-ai-coach/bin/activate
 pip install -r requirements.txt
 
-# Start FastAPI backend
+# Start FastAPI Backend Server
 uvicorn voice_assistant.api.main:app --reload
 ```
 
 ```bash
-# Launch frontend
+# Launch Frontend
 cd voice_ui
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`  
+Open your browser and access the URL printed after npm run dev (typically http://localhost:5173 unless otherwise specified in the terminal output).
 Supports voice and text input with real-time NLP + recommendations.
 
 ---
@@ -110,100 +108,139 @@ python voice_assistant/nlu/nlu_pipeline.py --cli
 
 ---
 
-## Intent Classification
+## Fine-Tuned Models Overview
 
-Maps transcribed text to high-level user goals.
+### Intent Classification (DistilBERT)
 
-| Intent         | Sample Input                                  |
-|----------------|------------------------------------------------|
-| `search_class` | "Find me a 30-minute HIIT ride with Alex"     |
-| `track_metric` | "How many workouts did I do last week?"       |
-| `greeting`     | "Hey there!"                                   |
+| **Parameter**                | **Value**                               |
+|------------------------------|-----------------------------------------|
+| Base Model                   | `distilbert-base-uncased`               |
+| Training Samples             | 1000 task-specific utterances           |
+| Batch Size                   | 16 (train) / 8 (eval)                   |
+| Training Epochs              | 20                                      |
+| Learning Rate                | 2e-5 (with 0.1 warmup ratio + linear decay) |
+| Dropout                      | 0.1                                     |
+| Optimizer                    | AdamW                                   |
+| Scheduler                    | Linear                                  |
+| Device                       | Local NVIDIA GPU (6GB)                  |
+| Final Validation Accuracy    | **100%** (held-out set)                 |
+| Loss (start → end)           | 1.60 → 0.0005                           |
+| Best Model Selection         | Enabled (`load_best_model_at_end=True`, metric: accuracy) |
 
-> Powered by a fine-tuned transformer. See [NLP Model Fine-Tuned for Intent](#nlp-model-fine-tuned-for-intent) for training details.
-
----
-
-## Entity Recognition
-
-Extracts key workout filters:
-
-| Entity        | Example              |
-|---------------|----------------------|
-| `time`        | “20 minutes”          |
-| `intensity`   | “low impact”          |
-| `person`      | “Robin”               |
-| `workout_type`| “yoga”, “ride”        |
-| `goal`        | “lose weight”         |
-| `tags`        | “cardio”, “relax”     |
-
----
-
-## Ranking Engine (OpenSearch Boosting)
-
-Performs semantic search over an indexed JSON workout dataset with real-world ranking logic.
-
-### Boosting Strategy
-
-- Weighted fields: instructor, type, tags, intensity, duration
-- Goal-to-tag mapping (“burn fat” → “cardio”)
-- Synonym normalization (“bike”, “ride” → “cycling”)
-- ±5 min duration tolerance
-
-### Add / Update Workout Data
+**Training Command:**
 
 ```bash
-# Start OpenSearch server
-docker-compose up -d
+python voice_assistant/nlu/intent_scripts/train_intent_classifier.py
+```
 
-# Re-index workouts
+---
+
+### Entity Extraction (RoBERTa + spaCy Transformer NER)
+
+| **Parameter**                | **Value**                               |
+|------------------------------|-----------------------------------------|
+| Base Model                   | `roberta-base`                          |
+| spaCy Architecture           | TransformerListener + Transition-Based Parser |
+| Training Samples             | 30,000+ synthetic ASR-style workout queries |
+| Batch Size                   | 16 (doc batch)                          |
+| Training Epochs (Max)        | 600 (early stopping applied)            |
+| Max Steps                    | 6000                                    |
+| Learning Rate                | 0.0001                                  |
+| Dropout                      | 0.15                                    |
+| Optimizer                    | Adam (with L2 regularization)           |
+| Gradient Clipping            | 1.0                                     |
+| Evaluation Metric            | Entities F1                             |
+| Final Evaluation F1          | **99.97%** (dev set)                    |
+| Device                       | Local NVIDIA GPU (6GB)                  |
+| MLflow Tracking              | Enabled (via `source mlflow_env.sh`)    |
+
+**Training Commands:**
+
+```bash
+# Fill missing hyperparameters
+python -m spacy init fill-config voice_assistant/nlu/entity_scripts/configs/config_manual.cfg voice_assistant/nlu/entity_scripts/configs/config_filled.cfg
+
+# Validate training data
+python -m spacy debug data voice_assistant/nlu/entity_scripts/configs/config_filled.cfg
+
+# Train on GPU
+source voice_assistant/nlu/entity_scripts/mlflow_env.sh
+python -m spacy train voice_assistant/nlu/entity_scripts/configs/config_filled.cfg --output voice_assistant/models/entity_model --gpu-id 0
+```
+
+**Evaluation Command:**
+
+```bash
+python -m spacy evaluate voice_assistant/models/entity_model/model-best voice_assistant/data/entity_data/dev.spacy --gpu-id 0 --output ./evaluation_result.json
+```
+
+Both the intent classifier and entity extractor models achieved >99% accuracy/F1 on realistic, ASR-style voice commands.
+**Generated Model Directory:**
+
+```
+voice_assistant/models/entity_model/model-best/
+```
+
+---
+
+## OpenSearch Ranking Engine
+
+- Index: Fitness classes dataset
+- Boosted fields:
+  - Instructor Name
+  - Workout Type
+  - Tags
+  - Intensity Level
+  - Duration (±5 min tolerance)
+- Synonym normalization (e.g., "bike" → "cycling")
+- Goal-to-tag mapping (e.g., "burn fat" → "cardio")
+- Manual field boosting rules on top of OpenSearch scoring
+
+Indexing:
+
+```bash
+docker-compose up -d  # Start OpenSearch
 python voice_assistant/search/index_workouts.py
 ```
 
 ---
 
-## NLP Model Fine-Tuned for Intent
+## MLflow Tracking (for NER Model)
 
-Intent classification is powered by a fine-tuned `distilbert-base-uncased`, optimized for this specific voice task.
+- MLflow experiment configured via `mlflow_env.sh`.
+- Captures losses, learning curves, evaluation metrics automatically during training.
 
-| Parameter         | Value                           |
-|-------------------|---------------------------------|
-| Model             | `distilbert-base-uncased`       |
-| Training Samples  | 1000+ task-specific utterances  |
-| Epochs            | 20                              |
-| Batch Size        | 16 (train) / 8 (eval)           |
-| Learning Rate     | 2e-5 with warmup + decay        |
-| Device            | NVIDIA RTX 4050                 |
-| Best Checkpoint   | Step 47 (early convergence)     |
-| Final Accuracy    | 100% (held-out set)             |
-| Final Loss        | ↓ from 1.60 → 0.0005             |
-
-> `load_best_model_at_end=True` ensured best checkpoint was restored for deployment.
-
----
-
-## Model Training
+Activate environment:
 
 ```bash
-python voice_assistant/nlu/train_intent_classifier.py
+source voice_assistant/nlu/entity_scripts/mlflow_env.sh
 ```
-
-Produces:
-- `model.safetensors`, `tokenizer`, `label_map.json`
-- Logs to stdout (MLflow support available)
 
 ---
 
-## ASR Test Only
+## ASR: Whisper Transcription
+
+- Using HuggingFace pre-trained openai/whisper-small.en model
+- Real-time mic input supported
+
+Test recording:
 
 ```bash
 ffmpeg -f alsa -i default -t 5 voice_assistant/data/input.wav
 python voice_assistant/asr/transcribe.py --file voice_assistant/data/input.wav
 ```
+
+---
+
+## Future Enhancements
+
+- **Chat Feedback with LLMs**: Open a conversational loop after search to refine recommendations dynamically. Combine retrieval + context-aware generation (RAG flow) for class specific information.
+- **Multilingual Support**: ASR transcription in multiple languages → auto-translate → English pipeline processing.
+- **End-to-End Transformer NER**: Compare Transformer-based span classification vs current transition-based parser.
+
 ---
 
 ## Contact
 
-[📧 ayaoshima.us@gmail.com](mailto:ayaoshima.us@gmail.com)  
-[🔗 LinkedIn](https://www.linkedin.com/in/ayaoshima/)
-
+📧 ayaoshima.us@gmail.com  
+🔗 [LinkedIn](https://www.linkedin.com/in/ayaoshima/)
