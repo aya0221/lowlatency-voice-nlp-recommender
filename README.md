@@ -181,6 +181,13 @@ Both the intent classifier and entity extractor models achieved >99% accuracy/F1
 voice_assistant/models/entity_model/model-best/
 ```
 
+**Hugging Face Model Deployment:**
+
+- Model Name: `workout-entity-extractor-roberta`
+- Hosted at: [https://huggingface.co/Aya-In-Brooklyn/workout-entity-extractor-roberta](https://huggingface.co/Aya-In-Brooklyn/workout-entity-extractor-roberta)
+- Format: Full `spaCy` pipeline (`TransformerListener + Transition-Based Parser`) trained on ASR-style synthetic workout queries.
+
+
 ---
 
 ## OpenSearch Ranking Engine
