@@ -54,8 +54,8 @@ Web UI Interaction (React) / LLM Feedback (planned)
 > Query example:  
 > _“Find me a 20-minute yoga with Alex”_
 
-<a href="https://youtu.be/GDH2nT_EzUI" target="_blank">
-  <img src="https://img.youtube.com/vi/GDH2nT_EzUI/hqdefault.jpg" alt="Watch Demo on YouTube">
+<a href="https://youtu.be/EcXSCofSh-E" target="_blank">
+  <img src="https://img.youtube.com/vi/EcXSCofSh-E/hqdefault.jpg" alt="Watch Demo on YouTube">
 </a>
 ---
 
