@@ -1,4 +1,4 @@
-# Personalized Fitness Voice Recommender | Whisper ASR, Transformers, Semantic Search
+# Real-Time Voice-to-NLP Recommendation System | Low Latency · High Accuracy · Neural Search
 
 Production-grade modular system that transcribes real-time voice, extracts structured workout requests, and delivers ranked fitness class recommendations.  
 Built for scalability, robustness, and showcasing fine-tuned transformer models and custom semantic ranking.
