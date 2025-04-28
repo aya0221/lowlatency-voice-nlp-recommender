@@ -174,7 +174,6 @@ python -m spacy train voice_assistant/nlu/entity_scripts/configs/config_filled.c
 python -m spacy evaluate voice_assistant/models/entity_model/model-best voice_assistant/data/entity_data/dev.spacy --gpu-id 0 --output ./evaluation_result.json
 ```
 
-Both the intent classifier and entity extractor models achieved >99% accuracy/F1 on realistic, ASR-style voice commands.
 **Generated Model Directory:**
 
 ```
