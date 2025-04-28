@@ -49,6 +49,15 @@ Web UI Interaction (React) / LLM Feedback (planned)
 
 ---
 
+## Demo
+
+> Query example:  
+> _“Find me a 20-minute yoga with Alex”_
+
+[![Watch Demo on YouTube](https://img.youtube.com/vi/GDH2nT_EzUI/hqdefault.jpg)](https://youtu.be/GDH2nT_EzUI)
+
+---
+
 ## Project Structure
 
 ```bash
