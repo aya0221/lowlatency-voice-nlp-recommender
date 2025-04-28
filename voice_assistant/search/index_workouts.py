@@ -13,7 +13,7 @@ INDEX_NAME = "workouts"
 client = OpenSearch(hosts=[OPENSEARCH_HOST])
 
 # Load data
-with open("voice_assistant/data/workouts.json") as f:
+with open("voice_assistant/data/database_workouts/workouts.json") as f:
     workouts = json.load(f)
 
 # Create index (if doesn't exist)

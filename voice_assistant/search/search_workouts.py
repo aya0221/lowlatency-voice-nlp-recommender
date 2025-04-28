@@ -10,10 +10,25 @@ client = OpenSearch(hosts=[OPENSEARCH_HOST])
 WORKOUT_TYPE_SYNONYMS = {
     "bike": "cycling", "ride": "cycling", "spin": "cycling", "cycling": "cycling",
     "run": "running", "jog": "running", "walk": "walking",
-    "stretching": "stretch", "strength training": "strength",
+    "stretch": "stretching", "strength training": "strength",
     "hiit": "hiit", "yoga": "yoga", "meditation": "meditation", "pilates": "pilates"
 }
-
+INTENSITY_SYNONYMS = {
+    "easy": "low impact",
+    "light": "low impact",
+    "beginner": "low impact",
+    "gentle": "low impact",
+    "moderate": "moderate",
+    "intermediate": "moderate",
+    "medium intensity": "moderate",
+    "high": "high intensity",
+    "challenging": "high intensity",
+    "advanced": "high intensity",
+    "tough": "high intensity",
+    "super intense": "high intensity",
+    "killer": "high intensity",
+    "hardcore": "high intensity",
+}
 # === Goal → Tag expansion ===
 GOAL_TO_TAGS = {
     "weight loss": ["weight loss", "cardio"],
@@ -23,6 +38,7 @@ GOAL_TO_TAGS = {
     "endurance": ["endurance", "running", "cycling"],
     "mood": ["mood", "relaxing"]
 }
+
 
 # === Utilities ===
 def extract_minutes(time_str):
@@ -42,8 +58,13 @@ def normalize_entities(entities):
     if "workout_type" in entities:
         raw = entities["workout_type"].lower()
         entities["workout_type"] = WORKOUT_TYPE_SYNONYMS.get(raw, raw)
-    return entities
 
+    if "intensity" in entities:
+        raw = entities["intensity"].lower()
+        entities["intensity"] = INTENSITY_SYNONYMS.get(raw, raw)
+
+    return entities
+    
 # === Main Search Logic ===
 def search_workouts(intent: str, entities: dict, top_k: int = 10):
     entities = normalize_entities(entities)
@@ -51,7 +72,7 @@ def search_workouts(intent: str, entities: dict, top_k: int = 10):
     should_clauses = []
 
     # Duration filtering with tolerance range ±5 min
-    minutes = extract_minutes(entities.get("time", ""))
+    minutes = extract_minutes(entities.get("duration", ""))
     if minutes:
         # Range match to allow a tolerance window
         must_clauses.append({
@@ -73,12 +94,12 @@ def search_workouts(intent: str, entities: dict, top_k: int = 10):
             }
         })
 
-    if "person" in entities:
+    if "instructor" in entities:
         must_clauses.append({
             "match": {
                 "instructor": {
-                    "query": entities["person"],
-                    "boost": 3
+                    "query": entities["instructor"],
+                    "boost": 7
                 }
             }
         })
@@ -98,7 +119,7 @@ def search_workouts(intent: str, entities: dict, top_k: int = 10):
             "match": {
                 "type": {
                     "query": entities["workout_type"],
-                    "boost": 4
+                    "boost": 6
                 }
             }
         })

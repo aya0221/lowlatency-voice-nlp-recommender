@@ -9,7 +9,7 @@ import argparse
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(project_root))
 
-from voice_assistant.nlu.custom_entity_scripts.custom_entity_extractor import keyword_matcher
+from voice_assistant.nlu.entity_scripts.custom_entity_scripts.custom_entity_extractor import keyword_matcher
 from voice_assistant.utils import config
 from voice_assistant.search.search_workouts import search_workouts
 from voice_assistant.asr.record_and_transcribe import record_and_transcribe

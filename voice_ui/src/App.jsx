@@ -36,21 +36,34 @@ export default function App() {
     recognition.start();
   };
 
+  const [searchTime, setSearchTime] = useState(null);
+
   const runSearch = async (inputText) => {
     if (!inputText.trim()) return;
     try {
+      const start = Date.now();  // Start timer here — after speech finishes
       const res = await axios.post("http://127.0.0.1:8000/api/search", {
         text: inputText,
       });
+      const elapsed = Date.now() - start;
       setResults(res.data);
+      setSearchTime(elapsed);  // Set the latency time
     } catch (err) {
       console.error("Search failed", err);
+      setSearchTime(null);  // Clear latency if failed
     }
   };
+  
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 py-10 px-4">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl p-10">
+      {searchTime !== null && (
+        <div className="text-center text-sm text-gray-600 mt-2">
+          Latency: {(searchTime / 1000).toFixed(2)} seconds
+        </div>
+      )}
         <h1 className="text-4xl font-extrabold text-center text-indigo-700 mb-6">
           Voice AI Workout Assistant
         </h1>

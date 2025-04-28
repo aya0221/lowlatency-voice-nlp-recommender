@@ -218,6 +218,7 @@ def generate_example():
     try_add(goal, "GOAL")
     try_add(mood, "MOOD")
     try_add(instructor, "INSTRUCTOR")
+    try_add(time_of_day, "TIME_OF_DAY")
 
     doc.ents = ents
     # Return both the Doc (for .spacy output) and a JSON record for reference

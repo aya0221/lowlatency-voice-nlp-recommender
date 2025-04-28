@@ -19,5 +19,13 @@ async def search_endpoint(request: Request):
     query_text = data.get("text", "")
     parsed = parse_text(query_text)
     if parsed["intent"] == "search_class":
-        return search_workouts(parsed["intent"], parsed["entities"], top_k=10)
+        results = search_workouts(parsed["intent"], parsed["entities"], top_k=10)
+
+        print("\n================ SEARCH & RECOMMENDATION START ==================\n")
+        for res in results:
+            print(
+                f"- [{res['score']}] {res['title']} | {res['duration']} min | {res['instructor']} | {res['intensity']} | {res['type']}"
+            )
+
+        return results
     return []
