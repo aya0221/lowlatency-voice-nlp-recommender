@@ -31,7 +31,7 @@ Web UI Interaction (React) / LLM Feedback (planned)
 - **Fine-Tuned Intent Detection**: DistilBERT-based classifier achieving **100% validation accuracy** for voice command understanding.
 - **Transformer-Based Entity Extraction**: RoBERTa fine-tuned with spaCy’s TransformerListener and Transition-Based Parser achieving **99.97% F1**.
 - **Custom Boosted Ranking Algorithm**: OpenSearch combined with hand-crafted field boosting, synonym normalization, and goal mapping for real-world ranking optimization.
-- **Voice-to-Search Full Pipeline**: Whisper → Intent → Entity → Boosted Search → Real-time Recommendation → Web UI.
+- **Voice-to-Search Full Pipeline**: Whisper → Intent → Entity → Boosted Search → Real-time Recommendation → Web UI (**<0.2s end-to-end latency**).
 - **GPU-Optimized Training**: Entire model training executed on local Linux GPU environment.
 
 ---
