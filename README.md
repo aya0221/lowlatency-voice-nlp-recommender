@@ -145,7 +145,7 @@ python voice_assistant/nlu/intent_scripts/train_intent_classifier.py
 | Batch Size                   | 16 (doc batch)                          |
 | Training Epochs (Max)        | 600 (early stopping applied)            |
 | Max Steps                    | 6000                                    |
-| Learning Rate                | 0.0001                                  |
+| Learning Rate                | 1e-4                               |
 | Dropout                      | 0.15                                    |
 | Optimizer                    | Adam (with L2 regularization)           |
 | Gradient Clipping            | 1.0                                     |
