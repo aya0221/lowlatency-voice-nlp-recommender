@@ -1,4 +1,4 @@
-# # Low-Latency Voice-to-NLP Recommender | Fine-Tuned for Fast, High-Accuracy Personalized Search
+# Low-Latency Voice-to-NLP Recommender | Fine-Tuned for Fast, High-Accuracy Personalized Search
 
 Production-grade modular system that transcribes real-time voice, extracts structured search intents, and delivers ranked personalized recommendations.  
 Built for scalability, robustness, and showcasing fine-tuned transformer models with custom semantic retrieval.
