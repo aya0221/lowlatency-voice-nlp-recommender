@@ -1,4 +1,4 @@
-# 📦 Custom NER Model (Predecessor to spaCy-RoBERTa)
+# Custom NER Model (Predecessor to spaCy-RoBERTa)
 
 This model is an **older, lightweight spaCy NER pipeline** trained before the Roberta+spaCy Transformer upgrade  [`entity_model`](../entity_model).  
 It uses `HashEmbedCNN` embeddings and a `TransitionBasedParser`, with **no transformer backbone**, no pretraining, and no MLflow tracking.
@@ -6,7 +6,7 @@ It uses `HashEmbedCNN` embeddings and a `TransitionBasedParser`, with **no trans
 
 ---
 
-## 🧪 Example Usage
+## Example Usage
 
 ```python
 import spacy
