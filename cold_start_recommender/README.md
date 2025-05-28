@@ -18,7 +18,7 @@ When a user signs up for the first time, the system cannot rely on behavioral hi
 
 ## Components
 
-### 1. `rec_engine.py` (Core Recommendation Logic)
+### - `rec_engine.py` (Core Recommendation Logic)
 
 **Type:** Real-time hybrid engine
 **Backend:** MySQL, OpenSearch
@@ -28,7 +28,7 @@ When a user signs up for the first time, the system cannot rely on behavioral hi
 * Optional keyword queries
 * Feedback history, OpenSearch ranking, or fallback
 
-### 2. `onboarding_coldstart/onboarding_cli.py`
+### - `onboarding_coldstart/onboarding_cli.py`
 
 **Type:** CLI demo
 **Usage:** Accepts new user inputs, simulates onboarding, retrieves cold-start recommendations from:
@@ -40,7 +40,7 @@ When a user signs up for the first time, the system cannot rely on behavioral hi
 
 ## Technical Pipeline
 
-### Segment Formation
+### 1. Segment Formation
 
 I built user segments via:
 
@@ -54,7 +54,7 @@ This creates a fine-grained segment space for high-resolution personalization.
 
 ---
 
-### Engagement Scoring (Offline)
+### 2. Engagement Scoring (Offline)
 
 For each segment-workout pair, engagement is computed using:
 
@@ -70,7 +70,7 @@ For each segment-workout pair, engagement is computed using:
 
 ---
 
-### Bayesian Smoothing (Optional)
+### 3. Bayesian Smoothing (Beta-Binomial smoothing)
 
 To stabilize engagement metrics under sparse data:
 
@@ -86,7 +86,7 @@ This reduces volatility in early-stage or low-traffic segments.
 
 ---
 
-### Freshness Boost (Optional)
+### 4. Freshness Boost (Ranking)
 
 To favor recent workouts:
 
@@ -98,14 +98,9 @@ This exponential decay ensures users receive up-to-date content.
 
 ---
 
-### Diversity Reranking (Optional)
+### 5. Diversity Reranking (MMR - Maximal Marginal Relevance)
 
-To enforce variety:
-
-* **MMR** (Maximal Marginal Relevance)
-* Tag-based **clustering** or **k-means centroids**
-
-Ensures top-k results aren’t overly similar (e.g., avoids 3 identical yoga workouts).
+Reordered top-K using tag similarity and diversity penalty → ensures variety; avoids repetitive or similar workouts
 
 ---
 
@@ -219,9 +214,8 @@ Metadata for workouts. Used to display titles/tags and by OpenSearch index.
 ```
 
 
----
 
-## Key Takeaways
+### Key Takeaways
 
 * **Cold-start problem** is solved via **precomputed segment matching**
 * **No runtime model needed** for first-time recommendations
