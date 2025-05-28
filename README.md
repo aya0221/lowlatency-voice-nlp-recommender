@@ -266,14 +266,16 @@ Where:
 Used to reduce variance under sparse data:
 
 ```math
-\hat{p} = \frac{s + \alpha_0}{n + \alpha_0 + \beta_0}
+\widehat{p}_{\text{like}}(w) = \frac{s_w + \alpha_0}{n_w + \alpha_0 + \beta_0}, \quad
+\widehat{p}_{\text{completion}}(w) = \frac{c_w + \alpha_0}{v_w + \alpha_0 + \beta_0}
 ```
+
 
 Where:
 
-* `s`: observed completions or likes
-* `n`: total views or feedbacks
-* Prior: `Beta(2, 2)`
+* $\alpha_0 = 2, \beta_0 = 2$ (prior strength)
+* $\widehat{p}_{\text{like}}(w)$: smoothed like rate
+* $\widehat{p}_{\text{completion}}(w)$: smoothed completion rate
 
 This applies separately to both completion and like rates before computing the final score.
 
@@ -300,10 +302,9 @@ From the top-20 scored workouts in each segment, **Maximal Marginal Relevance** 
 \text{MMR}(d) = \lambda \cdot \text{Rel}(d) - (1 - \lambda) \cdot \max_{s \in S} \text{Sim}(d, s)
 ```
 
-* `Rel(d)`: self-similarity (TF-IDF tag vector)
-* `Sim(d, s)`: cosine similarity of tags
-* `λ = 0.5`: relevance vs. diversity balance
-
+* $\text{Rel}(d)$: self-similarity (TF-IDF tag vector)
+* $\text{Sim}(d, s)$: cosine similarity of tags
+* $\lambda = 0.5$: relevance vs. diversity balance
 ---
 
 ### Runtime Flow: CLI Cold-Start Demo

@@ -100,7 +100,7 @@ To prevent similar-tagged workouts from dominating recommendations, top-20 candi
 * $\text{Rel}(d)$: TF-IDF self-relevance (diagonal of similarity matrix)
 * $\text{Sim}(d, s)$: cosine similarity between workout tag vectors
 * $\lambda = 0.5$: relevance-diversity balance
-* $k = 5$: top-5 final recommendations per segment
+* $k = 10$: top-10 final recommendations per segment (for now)
 
 ---
 
