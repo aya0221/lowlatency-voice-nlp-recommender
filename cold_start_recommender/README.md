@@ -211,6 +211,18 @@ user_id,age_group,fitness_level,preferred_types
 
 
 ---
+### Runtime Flow Demo of CLI Cold-Start
+
+Running `onboarding_coldstart/onboarding_cli.py` executes:
+
+- Collects user profile (age → age group, level, types)
+- Forms keys like `26-35|Intermediate|Cycling`
+- Reads from `segment_recommendations.csv` for top precomputed workout IDs
+- Joins with `augmented_workouts.json` to show:
+   * `title`, `instructor`, `tags`, and `score`
+5. Renders a top-10 ranked list
+![CLI Onboarding Demo](./assets/onbording_demo_cli.png)
+---
 
 ## Key Highlights
 
