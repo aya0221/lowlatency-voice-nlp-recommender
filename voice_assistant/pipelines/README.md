@@ -172,7 +172,7 @@ The CLI onboarding tool (`onboarding_cli.py`) simulates a first-time user regist
 
    * The script loads:
 
-     ```json
+     ```
      voice_assistant/data/database_workouts/augmented_workouts.json
      ```
 
@@ -220,7 +220,7 @@ To run:
 python voice_assistant/onboarding_coldstart/onboarding_cli.py
 ```
 
-![CLI Onboarding Demo](../assets/onbording_demo_cli.png)
+![CLI Onboarding Demo](../../assets/onbording_demo_cli.png)
 
 ---
 
