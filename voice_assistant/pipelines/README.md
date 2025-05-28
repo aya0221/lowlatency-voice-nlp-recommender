@@ -52,7 +52,7 @@ Where:
 * $v_w$: total views (session starts) for $w$
 * $s_w$: number of "like" feedbacks for $w$
 * $n_w$: total feedback entries for $w$
-* $\alpha, \beta, \gamma$ are weighting constants (default: $0.5, 0.4, 0.1$)
+* $\alpha, \beta, \gamma$ are weighting constants ($\alpha=0.5, \beta = 0.4, \gamma = 0.1$)
 
 ---
 
