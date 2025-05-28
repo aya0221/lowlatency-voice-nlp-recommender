@@ -139,10 +139,7 @@ This CLI simulates the first-time user experience, instantly delivering personal
 2. **Construct Segment Keys**
    For each preferred workout type, the CLI constructs a unique `SegmentKey`:
 
-   $
-   \text{SegmentKey} = \text{AgeGroup} \times \text{FitnessLevel} \times \text{WorkoutType}
-   $
-
+   $\text{SegmentKey} = \text{AgeGroup} \times \text{FitnessLevel} \times \text{WorkoutType}$
    e.g.,:
    ```
    SegmentKey = "26-35|Advanced|Yoga"
