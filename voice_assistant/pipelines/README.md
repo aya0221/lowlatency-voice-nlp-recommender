@@ -121,16 +121,6 @@ This CLI simulates the first-time user experience, instantly delivering personal
 
 ---
 
-Here is the revised and expanded **CLI Onboarding Runtime Flow** section, integrating logic from your actual `onboarding_cli.py` script with precise descriptions of each step and its technical underpinnings:
-
----
-
-## CLI Onboarding Runtime Flow
-
-The CLI onboarding tool (`onboarding_cli.py`) simulates a first-time user registering on the platform and immediately receiving personalized recommendations — fully offline and instant. This flow demonstrates the **cold-start personalization experience** powered by precomputed segment-based logic.
-
----
-
 ### Execution Logic
 
 1. **Collect User Profile Inputs**
