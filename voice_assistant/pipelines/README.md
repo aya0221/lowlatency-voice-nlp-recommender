@@ -42,7 +42,9 @@ Example: `"26-35|Intermediate|Cycling"`
 
 Each workout $w$ in a segment is assigned a composite engagement score:
 
-$\text{Score}_{\text{raw}}(w) = \alpha \cdot \frac{c_w}{v_w} + \beta \cdot \frac{s_w}{n_w} + \gamma \cdot \frac{v_w}{\max_{w'} v_{w'}}$
+$$
+\text{Score}_{\text{raw}}(w) = \alpha \cdot \frac{c_w}{v_w} + \beta \cdot \frac{s_w}{n_w} + \gamma \cdot \frac{v_w}{\max_{w'} v_{w'}}
+$$
 
 Where:
 
@@ -58,10 +60,11 @@ Where:
 
 To mitigate noise in sparse segments, we apply smoothed estimators using a Beta prior $\text{Beta}(\alpha_0, \beta_0)$:
 
-$$
+```math
 \widehat{p}_{\text{like}}(w) = \frac{s_w + \alpha_0}{n_w + \alpha_0 + \beta_0}, \quad
 \widehat{p}_{\text{completion}}(w) = \frac{c_w + \alpha_0}{v_w + \alpha_0 + \beta_0}
-$$
+```
+
 
 Where:
 
