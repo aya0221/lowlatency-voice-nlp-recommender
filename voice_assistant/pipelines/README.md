@@ -17,7 +17,7 @@ No model inference or real-time query infrastructure is needed.
 
 ---
 
-## Pipeline: `voice_assistnat_pipelines_rec_engine_pipeline.py`
+## Pipeline: `voice_assistnat/pipelines/rec_engine_pipeline.py`
 
 **Language:** Python 3.11
 **Libraries:** `pandas`, `numpy`, `scikit-learn`, `TfidfVectorizer`, `cosine_similarity`
@@ -130,3 +130,77 @@ This file can be directly used in production onboarding or batch delivery with z
 * **Bayesian smoothing + freshness decay** ensure robust rankings
 * **MMR diversity** reduces content repetition
 * **Scalable** to millions of users with offline batch mode
+
+
+---
+## Each Dataset's contents:
+
+| File                          | Description                                      |
+| ----------------------------- | ------------------------------------------------ |
+| `segment_recommendations.csv` | 721 entries across 144 unique segment keys       |
+| `augmented_workouts.json`     | 600 total unique workouts with metadata          |
+| `users.csv`                   | 2,000 user profiles with age, level, preferences |
+| `sessions.csv`                | 34,287 recorded sessions for engagement modeling |
+| `feedback.csv`                | 14,368 binary feedback entries (likes/dislikes)  |
+
+
+### `segment_recommendations.csv`
+
+```csv
+segment_key,workout_id,score
+18-25|Advanced|boxing,357,0.64
+18-25|Advanced|boxing,540,0.5959157094566421
+```
+
+### `sessions.csv`
+
+```csv
+session_id,user_id,workout_id,completed,timestamp
+1001,1,220,1,2025-03-05T06:32:41.016619
+1002,1,357,1,2025-01-20T13:38:41.016647
+```
+* `completed_at` is `NULL` if user abandoned (used to compute instructor flagging rate)
+
+
+### `feedback.csv`
+
+```csv
+feedback_id,session_id,user_id,workout_id,liked,feedback_time
+1,14551,788,103,1,2025-04-06T15:24:41Z
+```
+* `liked` is `1` if user liked the workout
+
+
+### `users.csv`
+
+```csv
+user_id,age_group,fitness_level,preferred_types
+1,18-25,Beginner,"walking,cycling,cardio"
+2,26-35,Advanced,cardio
+```
+
+### `augmented_workouts.json`
+```json
+[
+  {
+    "workout_id": "w123",
+    "title": "30-Minute Gentle Yoga Flow",
+    "instructor": "Alex Morgan",
+    "instructor_id": "i10",
+    "workout_type": "Yoga",
+    "fitness_level": "Beginner",
+    "duration": 30,
+    "tags": ["calm", "stretch", "low-impact"]
+  },
+]
+```
+
+### MySQL
+
+| Table                     | Purpose                               |
+| ------------------------- | ------------------------------------- |
+| `users`                   | Stores user profiles after onboarding |
+| `sessions`                | Logs workout session start/completion |
+| `feedback`                | Stores thumbs up/down feedback        |
+| `cold_start_top_workouts` | Precomputed segment rankings          |
+| `flags`                   | Stores instructor-level quality flags |
