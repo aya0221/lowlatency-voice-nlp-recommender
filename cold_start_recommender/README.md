@@ -178,6 +178,33 @@ s003,u001,w789,Strength,i10,2025-05-12 18:00:00,2025-05-12 18:45:00
 
 * `completed_at` is `NULL` if user abandoned (used to compute instructor flagging rate)
 
+
+---
+### `feedback.csv`
+
+Logs user feedback on workouts. Used to compute engagement metrics and feedback.
+
+```csv
+feedback_id,session_id,user_id,workout_id,liked,feedback_time
+1,14551,788,103,1,2025-04-06T15:24:41Z
+2,7222,357,436,1,2024-11-30T12:35:41Z
+3,25121,1409,271,0,2025-05-23T18:57:41Z
+```
+
+* `liked` is `1` if user liked the workout
+
+
+---
+### `users.csv`
+
+
+```csv
+user_id,age_group,fitness_level,preferred_types
+1,18-25,Beginner,"walking,cycling,cardio"
+2,26-35,Advanced,cardio
+3,18-25,Advanced,"yoga,boxing"
+```
+
 ---
 
 ### `augmented_workouts.json`
@@ -220,7 +247,6 @@ Metadata for workouts. Used to display titles/tags and by OpenSearch index.
 | `feedback`                | Stores thumbs up/down feedback        |
 | `cold_start_top_workouts` | Precomputed segment rankings          |
 | `flags`                   | Stores instructor-level quality flags |
-```
 
 
 
