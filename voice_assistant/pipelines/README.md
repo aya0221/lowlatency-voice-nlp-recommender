@@ -42,9 +42,7 @@ Example: `"26-35|Intermediate|Cycling"`
 
 Each workout $w$ in a segment is assigned a composite engagement score:
 
-$$
-\text{Score}_{\text{raw}}(w) = \alpha \cdot \frac{c_w}{v_w} + \beta \cdot \frac{s_w}{n_w} + \gamma \cdot \frac{v_w}{\max_{w'} v_{w'}}
-$$
+$\text{Score}_{\text{raw}}(w) = \alpha \cdot \frac{c_w}{v_w} + \beta \cdot \frac{s_w}{n_w} + \gamma \cdot \frac{v_w}{\max_{w'} v_{w'}}$
 
 Where:
 
