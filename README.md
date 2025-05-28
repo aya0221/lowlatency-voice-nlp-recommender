@@ -8,6 +8,8 @@ Built for scalability, robustness, and showcasing fine-tuned transformer models 
 ## System Architecture
 
 ```
+Cold-start-recommendation(Segment,Bayesian,MMR)
+        ↓
 Voice Input (Mic / UI)
         ↓
 Whisper ASR (Audio Transcription)
