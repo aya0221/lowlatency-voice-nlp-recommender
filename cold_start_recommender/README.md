@@ -102,6 +102,15 @@ This exponential decay ensures users receive up-to-date content.
 
 Reordered top-K using tag similarity and diversity penalty → ensures variety; avoids repetitive or similar workouts
 
+```math
+\text{MMR} = \arg\max_{d \in R \setminus S} \left[ \lambda \cdot \text{Rel}(d) - (1 - \lambda) \cdot \max_{s \in S} \text{Sim}(d, s) \right]
+```
+
+Where:
+
+* `Rel(d)` = base score
+* `Sim(d, s)` = tag vector cosine similarity
+
 ---
 
 ## Runtime Logic: How It Works

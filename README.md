@@ -219,6 +219,105 @@ Indexing:
 docker-compose up -d  # Start OpenSearch
 python voice_assistant/search/index_workouts.py
 ```
+---
+
+Insert the new section **right after** `## OpenSearch Ranking Engine` and **before** `## MLflow Tracking (for NER Model)`. This places the cold-start logic directly after retrieval and ranking, in context with how recommendations are served when user history is unavailable.
+
+Here is the complete section to insert:
+
+---
+
+## Cold-Start Recommendation Pipeline (Segment-Based Personalization)
+
+This module addresses the cold-start problem by **precomputing personalized recommendations** per user segment (based on profile only) using statistical and algorithmic techniques — eliminating the need for runtime models.
+
+### 1. Segment Formation
+
+Each user is bucketed into a unique segment via categorical cross keying:
+
+```math
+\text{Segment Key} = \text{Age Group} \times \text{Fitness Level} \times \text{Workout Type}
+```
+
+Example: `26-35|Intermediate|Cycling`
+
+This forms **fine-grained personalization segments** (∼200–1000+ unique keys), supporting granular cold-start logic.
+
+---
+
+### 2. Engagement Scoring (Offline)
+
+Each workout within a segment is assigned a score using a weighted heuristic:
+
+```math
+\text{Score} = \alpha \cdot \text{completion\_rate} + \beta \cdot \text{like\_rate} + \gamma \cdot \text{views}_{norm}
+```
+
+Where:
+
+* `completion_rate = completed / started`
+* `like_rate = likes / views`
+* `views_norm` = z-score normalized view count (per segment)
+* `α, β, γ` are tunable weights (e.g. 0.5, 0.3, 0.2)
+
+---
+
+### 3. Bayesian Smoothing
+
+Used when engagement data is sparse (few sessions per workout):
+
+```math
+\hat{r} = \frac{s + \alpha_0}{n + \alpha_0 + \beta_0}
+```
+
+Where:
+
+* `s` = observed success count (e.g. likes)
+* `n` = total trials (e.g. views)
+* `α₀, β₀` = prior (Beta distribution); avoids overfitting
+
+---
+
+### 4. Freshness Weighting
+
+To prioritize new workouts and avoid stale content, we apply exponential decay:
+
+```math
+\text{Score}_{fresh} = \text{Score} \cdot e^{- \lambda \cdot \text{days\_old}}
+```
+
+Typically, `λ` = 0.01–0.05 based on desired decay horizon.
+
+---
+
+### 5. Diversity Reranking (Optional)
+
+We rerank top-k per segment via **MMR (Maximal Marginal Relevance)** to ensure tag diversity:
+
+```math
+\text{MMR} = \arg\max_{d \in R \setminus S} \left[ \lambda \cdot \text{Rel}(d) - (1 - \lambda) \cdot \max_{s \in S} \text{Sim}(d, s) \right]
+```
+
+Where:
+
+* `Rel(d)` = base score
+* `Sim(d, s)` = tag vector cosine similarity
+
+---
+
+### Runtime Flow: CLI Cold-Start Demo
+
+Running `onboarding_coldstart/onboarding_cli.py` executes:
+
+1. Collects user profile (age → age group, level, types)
+2. Forms keys like `26-35|Intermediate|Cycling`
+3. Reads from `segment_recommendations.csv` for top precomputed workout IDs
+4. Joins with `augmented_workouts.json` to show:
+
+   * `title`, `instructor`, `tags`, and `score`
+5. Renders a top-10 ranked list — no DB or ASR required
+
+![CLI Onboarding Demo](./assets/onbording_demo_cli.png)
 
 ---
 
@@ -232,6 +331,7 @@ Activate environment:
 ```bash
 source voice_assistant/nlu/entity_scripts/mlflow_env.sh
 ```
+---
 
 ---
 
