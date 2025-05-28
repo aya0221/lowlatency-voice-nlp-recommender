@@ -115,15 +115,110 @@ segment_key,workout_id,score
 
 ---
 
+## CLI Onboarding Runtime Flow (Instant Cold-Start Personalization)
+
+This CLI simulates the first-time user experience, instantly delivering personalized workout recommendations using only user input and precomputed segment scores — with zero inference, no latency, and no database access.
+
+---
+
+Here is the revised and expanded **CLI Onboarding Runtime Flow** section, integrating logic from your actual `onboarding_cli.py` script with precise descriptions of each step and its technical underpinnings:
+
+---
+
 ## CLI Onboarding Runtime Flow
 
-The CLI demo script `onboarding_cli.py` simulates cold-start onboarding:
+The CLI onboarding tool (`onboarding_cli.py`) simulates a first-time user registering on the platform and immediately receiving personalized recommendations — fully offline and instant. This flow demonstrates the **cold-start personalization experience** powered by precomputed segment-based logic.
 
-1. User provides age, fitness level, workout preferences
-2. Segment key is constructed (e.g., `"18-25|Beginner|Yoga"`)
-3. Top recommendations are loaded from `segment_recommendations.csv`
-4. Metadata is joined from `augmented_workouts.json`
-5. User receives 5–10 personalized workout cards
+---
+
+### Execution Logic
+
+1. **Collect User Profile Inputs**
+   The CLI prompts the user to enter:
+   * **Age** → automatically converted to one of 4 age buckets (`18–25`, `26–35`, `36–50`, `50+`)
+   * **Fitness Level** → one of `Beginner`, `Intermediate`, `Advanced`
+   * **Preferred Workout Types** → supports multi-select (e.g. `Cycling, Yoga`)
+   * **Region** (Country, State) → used optionally for UI analytics or location-based fallback
+
+   ```python
+   age_group = age_to_group(user_input)
+   fitness_level = capitalize(user_input)
+   preferred_types = normalize_types(user_input_list)
+   ```
+
+2. **Construct Segment Keys**
+   For each preferred workout type, the CLI constructs a unique `SegmentKey`:
+
+   $$
+   \text{SegmentKey} = \text{AgeGroup} \times \text{FitnessLevel} \times \text{WorkoutType}
+   $$
+
+   e.g.,:
+   ```
+   SegmentKey = "26-35|Advanced|Yoga"
+   ```
+
+3. **Retrieve Cold-Start Recommendations**
+
+   * The script loads the precomputed CSV file:
+
+     ```csv
+     voice_assistant/data/user_database/segment_recommendations.csv
+     ```
+   * It filters rows by the constructed segment keys.
+   * If no exact matches are found, it **falls back** to segment matches that ignore workout type (i.e. `AgeGroup|FitnessLevel` prefix match).
+
+4. **Join with Workout Metadata**
+
+   * The script loads:
+
+     ```json
+     voice_assistant/data/database_workouts/augmented_workouts.json
+     ```
+
+     which contains full metadata for 600 workouts (title, instructor, tags, duration).
+   * It joins on `workout_id` to enrich the recommendations with human-readable info.
+
+   ```python
+   merged = recommendations.merge(workouts, on="workout_id", how="left")
+   ```
+
+5. **Display Final Top-10 Recommendations**
+
+   * Deduplicates across workout IDs
+   * Ranks by score (descending)
+   * Displays the **title**, **instructor**, **tag summary**, and **composite score** for the top 10 results
+
+   Example output:
+
+   ```
+   - 30-Minute Gentle Yoga Flow | Instructor: Alex Morgan | Tags: calm, stretch | Score: 0.91
+   - Power HIIT Burnout | Instructor: Jamie Lee | Tags: intense, cardio | Score: 0.88
+   ```
+
+6. **User Session Ends Instantly**
+   No external API call, model inference, or database connection is needed.
+   The recommendations are **ready the moment the user completes registration**.
+
+---
+
+### What This Demonstrates
+
+* End-to-End simulation of first-time onboarding
+* **Real-time** delivery from precomputed pipeline artifacts
+* **Offline-first architecture**: fully portable, low-latency, reproducible
+* **Scalable personalization logic** driven by:
+  * categorical segment encoding
+  * statistical engagement modeling
+  * offline diversity-aware ranking
+
+---
+
+To run:
+
+```bash
+python voice_assistant/onboarding_coldstart/onboarding_cli.py
+```
 
 ![CLI Onboarding Demo](../assets/onbording_demo_cli.png)
 
