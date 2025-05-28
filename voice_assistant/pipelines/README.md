@@ -40,34 +40,39 @@ Example: `"26-35|Intermediate|Cycling"`
 
 ### 2. Engagement Scoring
 
-Each workout receives a composite score based on observed user engagement:
+Each workout $w$ in a segment is assigned a composite engagement score:
 
 $$
-\text{Score}_{\text{raw}} = \alpha \cdot \text{CompletionRate} + \beta \cdot \text{LikeRate} + \gamma \cdot \frac{\text{Views}}{\max(\text{Views})}
+\text{Score}_{\text{raw}}(w) = \alpha \cdot \frac{c_w}{v_w} + \beta \cdot \frac{s_w}{n_w} + \gamma \cdot \frac{v_w}{\max_{w'} v_{w'}}
 $$
 
-* $\text{CompletionRate} = \frac{\text{\#Completions}}{\text{\#Views}}$
-* $\text{LikeRate} = \frac{\text{\#Likes}}{\text{\#Feedbacks}}$
-* Tunable weights: $\alpha = 0.5, \beta = 0.4, \gamma = 0.1$
+Where:
+
+* $c_w$: number of completed sessions for workout $w$
+* $v_w$: total views (session starts) for $w$
+* $s_w$: number of "like" feedbacks for $w$
+* $n_w$: total feedback entries for $w$
+* $\alpha, \beta, \gamma$ are weighting constants (default: $0.5, 0.4, 0.1$)
 
 ---
 
 ### 3. Bayesian Smoothing
 
-To stabilize scoring under sparse feedback, we apply Beta priors:
+To mitigate noise in sparse segments, we apply smoothed estimators using a Beta prior $\text{Beta}(\alpha_0, \beta_0)$:
 
 $$
-\hat{p}_{\text{like}} = \frac{s + \alpha_0}{n + \alpha_0 + \beta_0}, \quad
-\hat{p}_{\text{completion}} = \frac{c + \alpha_0}{v + \alpha_0 + \beta_0}
+\widehat{p}_{\text{like}}(w) = \frac{s_w + \alpha_0}{n_w + \alpha_0 + \beta_0}, \quad
+\widehat{p}_{\text{completion}}(w) = \frac{c_w + \alpha_0}{v_w + \alpha_0 + \beta_0}
 $$
 
 Where:
 
-* $s$: number of likes, $n$: feedback count
-* $c$: number of completions, $v$: view count
-* Prior: $\text{Beta}(2, 2)$
+* $\alpha_0 = 2, \beta_0 = 2$ (prior strength)
+* $\widehat{p}_{\text{like}}(w)$: smoothed like rate
+* $\widehat{p}_{\text{completion}}(w)$: smoothed completion rate
 
-→ These smoothed rates replace the raw metrics in the scoring equation.
+These values replace the raw rates in the scoring function for improved stability.
+
 
 ---
 
@@ -140,6 +145,7 @@ This CLI simulates the first-time user experience, instantly delivering personal
    For each preferred workout type, the CLI constructs a unique `SegmentKey`:
 
    $\text{SegmentKey} = \text{AgeGroup} \times \text{FitnessLevel} \times \text{WorkoutType}$
+   
    e.g.,:
    ```
    SegmentKey = "26-35|Advanced|Yoga"
