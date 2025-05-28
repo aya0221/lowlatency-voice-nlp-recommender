@@ -254,8 +254,8 @@ For each segment–workout pair, an engagement score is computed based on:
 
 Where:
 
-* `CompletionRate = #Completed / #Viewed`
-* `LikeRate = #Liked / #Feedbacks`
+* $`CompletionRate = |Completed| / |Viewed|`$
+* $`LikeRate = |Liked| / |Feedbacks|`$
 * $`Views_norm = \text{Views} / \max(\text{Views})`$
 * Tunable weights: `α = 0.5`, `β = 0.4`, `γ = 0.1`
 
