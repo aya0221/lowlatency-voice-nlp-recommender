@@ -219,11 +219,6 @@ Indexing:
 docker-compose up -d  # Start OpenSearch
 python voice_assistant/search/index_workouts.py
 ```
----
-
-Insert the new section **right after** `## OpenSearch Ranking Engine` and **before** `## MLflow Tracking (for NER Model)`. This places the cold-start logic directly after retrieval and ranking, in context with how recommendations are served when user history is unavailable.
-
-Here is the complete section to insert:
 
 
 ---
