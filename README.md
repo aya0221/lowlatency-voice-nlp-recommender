@@ -256,7 +256,7 @@ Where:
 
 * `CompletionRate = #Completed / #Viewed`
 * `LikeRate = #Liked / #Feedbacks`
-* `Views_norm = \text{Views} / \max(\text{Views})`
+* $`Views_norm = \text{Views} / \max(\text{Views})`$
 * Tunable weights: `α = 0.5`, `β = 0.4`, `γ = 0.1`
 
 ---
