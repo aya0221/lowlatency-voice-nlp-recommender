@@ -323,8 +323,6 @@ Running `onboarding_coldstart/onboarding_cli.py` performs:
 
    * `title`, `instructor`, `tags`, and `score`
 
-✅ No database or server needed — everything is precomputed and resolved locally.
-
 ![CLI Onboarding Demo](./assets/onbording_demo_cli.png)
 
 ---
