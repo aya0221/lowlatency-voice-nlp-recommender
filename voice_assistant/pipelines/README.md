@@ -149,9 +149,9 @@ The CLI onboarding tool (`onboarding_cli.py`) simulates a first-time user regist
 2. **Construct Segment Keys**
    For each preferred workout type, the CLI constructs a unique `SegmentKey`:
 
-   $$
+   $
    \text{SegmentKey} = \text{AgeGroup} \times \text{FitnessLevel} \times \text{WorkoutType}
-   $$
+   $
 
    e.g.,:
    ```
