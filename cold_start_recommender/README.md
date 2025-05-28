@@ -1,216 +1,189 @@
+# Personalized Cold-Start Recommendation System
 
-# Personalization Engine: Cold-Start Recommendation System
-
-This module implements a **cold-start recommendation pipeline** for first-time users of a workout recommendation platform. It simulates an industry-grade recommendation system that precomputes segment-personalized workout lists and serves them at runtime based on onboarding input — without needing user history.
-
----
-
-## Purpose
-
-When a user signs up for the first time, the system cannot rely on behavioral history. This **cold-start module** computes and stores **segment-based recommendations** by leveraging:
-
-* User-provided demographic and preference inputs
-* Offline engagement data from similar users
-* Heuristic or Bayesian scoring for ranking
-* Optional freshness and diversity heuristics
+This repository implements a **production-grade cold-start recommendation pipeline** for first-time users of a workout recommendation platform. It integrates segment-based logic, engagement-based scoring, Bayesian smoothing, diversity-aware ranking, and real-time retrieval strategies. It is built to simulate modern industry practices for scalable, latency-sensitive personalization.
 
 ---
 
-## Components
+## System Architecture Overview
 
-### - `rec_engine.py` (Core Recommendation Logic)
+**Cold-start** recommendation is triggered **at user onboarding**. Since no historical interaction data exists, the system uses demographic + preference-based segmentation and offline engagement data to precompute and retrieve personalized workouts in constant time.
 
-**Type:** Real-time hybrid engine
-**Backend:** MySQL, OpenSearch
-**Usage:** Fetches top-k personalized workouts based on:
-
-* Profile segmentation (age × level × type)
-* Optional keyword queries
-* Feedback history, OpenSearch ranking, or fallback
-
-### - `onboarding_coldstart/onboarding_cli.py`
-
-**Type:** CLI demo
-**Usage:** Accepts new user inputs, simulates onboarding, retrieves cold-start recommendations from:
-
-* `voice_assistant/data/user_database/segment_recommendations.csv`
-* `voice_assistant/data/database_workouts/augmented_workouts.json`
+* **Offline logic**: Computes top workouts per user segment (721 segment-workout entries across 144 unique segments)
+* **Online logic**: Lookup and rerank based on registration profile
 
 ---
 
-## Technical Pipeline
+## Modules
+
+### `rec_engine.py` (Production Recommendation Engine)
+
+**Backend Dependencies**: MySQL, OpenSearch
+
+This engine powers both cold-start and returning-user recommendations. It dynamically routes:
+
+* **Cold-start logic** (no user history):
+
+  * Extracts user segment key: `age_group × fitness_level × workout_type`
+  * Looks up top-ranked workouts from precomputed SQL table `cold_start_top_workouts`
+  * Applies optional filters: flagged instructors, fallback preferences, de-duplication
+
+* **Returning-user logic**:
+
+  * Incorporates user feedback (likes/dislikes), flagged instructors
+  * Builds an OpenSearch query with filters:
+
+    * `must`: keyword match (title, tags, description)
+    * `filter`: fitness level, duration, workout type
+    * `should`: preference boosting (liked types, instructors)
+    * `must_not`: flagged/disliked instructors, previously seen workouts
+  * Executes query with OpenSearch and returns personalized list
+
+---
+
+### `onboarding_cli.py` (CLI Demo Script)
+
+**Purpose**: Simulates onboarding flow for first-time users and displays top recommended workouts instantly.
+
+**Runtime Steps**:
+
+1. Accepts inputs:
+
+   * Age → grouped into buckets
+   * Fitness level (Beginner, Intermediate, Advanced)
+   * Preferred workout types (Yoga, Cycling, etc.)
+   * Region (country/state)
+2. Constructs segment keys like:
+
+   ```
+   segment_key = "26-35|Advanced|Yoga"
+   ```
+3. Loads cold-start recommendations from:
+
+   * `segment_recommendations.csv`: 721 ranked entries for 144 unique segments
+   * `augmented_workouts.json`: metadata from 600 unique workout definitions
+4. Displays Top-10 workouts sorted by score:
+
+   * Title, instructor, tags, Bayesian engagement score
+
+This lookup is **instantaneous** after registration, showcasing the ability to generate personalized results with **zero latency and no model inference.**
+
+---
+
+## Algorithmic Computations (Offline)
 
 ### 1. Segment Formation
 
-I built user segments via:
+Each user segment is defined as:
 
-```math
-\text{Segment Key} = \text{Age Group} \times \text{Fitness Level} \times \text{Workout Type}
+$\text{SegmentKey} = \text{AgeGroup} \times \text{FitnessLevel} \times \text{WorkoutType}$
+
+Example:
+
+```
+segment_key = "18-25|Beginner|Yoga"
 ```
 
-Example: `"18-25|Beginner|Yoga"`
-
-This creates a fine-grained segment space for high-resolution personalization.
+From the data, 144 unique segments are constructed to cover key demographic and workout type intersections.
 
 ---
 
-### 2. Engagement Scoring (Offline)
+### 2. Engagement-Based Scoring
 
-For each segment-workout pair, engagement is computed using:
+Offline engagement metrics are computed for each workout per segment using 34,287 session logs:
 
-```math
-\text{Score} = \alpha \cdot \text{completion\_rate} + \beta \cdot \text{like\_rate} + \gamma \cdot \text{views\_norm}
+$\text{Score} = \alpha \cdot \text{CompletionRate} + \beta \cdot \text{LikeRate} + \gamma \cdot \text{ViewsNorm}$
+
+* `CompletionRate = #Completed / #Started`
+* `LikeRate = #Liked / #Viewed` (from 14,368 feedback entries)
+* `ViewsNorm`: Z-score normalized views
+* Tunable weights `\alpha, \beta, \gamma` allow ranking calibration
+
+---
+
+### 3. Bayesian Smoothing
+
+To mitigate noise in low-traffic segments, we apply **Beta-Binomial smoothing**:
+
+$\hat{r} = \frac{s + \alpha_0}{n + \alpha_0 + \beta_0}$
+
+* `s`: observed likes (successes)
+* `n`: total views (trials)
+* `\alpha_0, \beta_0`: prior hyperparameters (e.g., Beta(2, 5))
+
+This stabilizes recommendation scores under data sparsity.
+
+---
+
+### 4. Freshness Decay
+
+Favor newer workouts using exponential decay:
+
+$\text{FreshScore} = \text{Score} \cdot e^{-\lambda \cdot \text{daysOld}}$
+
+This reduces rank of stale content while preserving score integrity.
+
+---
+
+### 5. Diversity-Aware Reranking (MMR)
+
+To ensure variety in top-K results, we apply Maximal Marginal Relevance:
+
+$\text{MMR}(d) = \lambda \cdot \text{Rel}(d) - (1 - \lambda) \cdot \max_{s \in S} \text{Sim}(d, s)$
+
+* `Rel(d)`: base relevance score
+* `Sim(d, s)`: cosine similarity of tag vectors
+* `S`: selected workouts
+* `\lambda`: tunable trade-off parameter
+
+---
+
+## Data Files
+
+| File                          | Description                                      |
+| ----------------------------- | ------------------------------------------------ |
+| `segment_recommendations.csv` | 721 entries across 144 unique segment keys       |
+| `augmented_workouts.json`     | 600 total unique workouts with metadata          |
+| `users.csv`                   | 2,000 user profiles with age, level, preferences |
+| `sessions.csv`                | 34,287 recorded sessions for engagement modeling |
+| `feedback.csv`                | 14,368 binary feedback entries (likes/dislikes)  |
+
+
+### `segment_recommendations.csv`
+
+```csv
+segment_key,workout_id,score
+18-25|Advanced|boxing,357,0.64
+18-25|Advanced|boxing,540,0.5959157094566421
 ```
-
-* `completion_rate = #completed / #started`
-* `like_rate = #likes / #views`
-* `views_norm` is z-normalized across the corpus
-
-**Tunable weights**: `α, β, γ` allow business-driven calibration (e.g., prioritize likes over views).
-
----
-
-### 3. Bayesian Smoothing (Beta-Binomial smoothing)
-
-To stabilize engagement metrics under sparse data:
-
-```math
-\hat{r} = \frac{s + \alpha_0}{n + \alpha_0 + \beta_0}
-```
-
-* `s`: observed successes (e.g., likes)
-* `n`: trials (e.g., views)
-* `α₀, β₀`: prior hyperparameters (e.g., Beta(2, 5))
-
-This reduces volatility in early-stage or low-traffic segments.
-
----
-
-### 4. Freshness Boost (Ranking)
-
-To favor recent workouts:
-
-```math
-\text{Score}_{fresh} = \text{Score} \cdot e^{- \lambda \cdot \text{days\_old}}
-```
-
-This exponential decay ensures users receive up-to-date content.
-
----
-
-### 5. Diversity Reranking (MMR - Maximal Marginal Relevance)
-
-Reordered top-K using tag similarity and diversity penalty → ensures variety; avoids repetitive or similar workouts
-
-```math
-\text{MMR} = \arg\max_{d \in R \setminus S} \left[ \lambda \cdot \text{Rel}(d) - (1 - \lambda) \cdot \max_{s \in S} \text{Sim}(d, s) \right]
-```
-
-Where:
-
-* `Rel(d)` = base score
-* `Sim(d, s)` = tag vector cosine similarity
-
----
-
-## Runtime Logic: How It Works
-
-### Onboarding Demo (`onboarding_cli.py`)
-
-When the CLI script runs:
-
-1. Accepts user inputs for:
-
-   * Age (mapped to age group)
-   * Fitness level
-   * Preferred workout types
-   * Region (country/state)
-2. Constructs segment keys like `26-35|Advanced|Cycling`
-3. Looks up those keys in:
-
-   * `segment_recommendations.csv` → Precomputed ranked workout IDs
-   * Joins with `augmented_workouts.json` to display metadata
-4. Returns top-10 segment-matched workouts:
-
-   * Title, instructor, tags, engagement score
-
-![Onboarding CLI Demo](../assets/onbording_demo_cli.png)
-No model training, database, or OpenSearch needed — pure lookup from precomputed results.
----
-
-### Real-Time Recommendations (`rec_engine.py`)
-
-Used in production pipeline with database + OpenSearch:
-
-* If user has no history:
-
-  * Lookup top workouts from `cold_start_top_workouts` SQL table using segment keys
-  * Applies fallback logic if preferred workout type is missing
-* If user has history:
-
-  * Personalizes based on past feedback (e.g., liked instructors)
-  * Uses OpenSearch query for keyword-driven retrieval
-  * Filters flagged/disliked instructors
-  * Avoids duplicate seen workouts
-
-**OpenSearch Query** includes:
-
-* Must: keyword match (title, tags, description)
-* Filter: fitness level, duration, type
-* Should: preference boosting (types, liked instructors)
-* Must-not: flagged or disliked instructors
-
----
-
----
-## Data
 
 ### `sessions.csv`
 
-Logs each user's workout attempt. Used for history, instructor tracking, abandonment, and feedback joining.
-
 ```csv
-session_id,user_id,workout_id,workout_type,instructor_id,started_at,completed_at
-s001,u001,w123,Yoga,i10,2025-05-10 09:00:00,2025-05-10 09:30:00
-s002,u002,w456,Cycling,i20,2025-05-11 14:00:00,
-s003,u001,w789,Strength,i10,2025-05-12 18:00:00,2025-05-12 18:45:00
+session_id,user_id,workout_id,completed,timestamp
+1001,1,220,1,2025-03-05T06:32:41.016619
+1002,1,357,1,2025-01-20T13:38:41.016647
 ```
-
 * `completed_at` is `NULL` if user abandoned (used to compute instructor flagging rate)
 
 
----
 ### `feedback.csv`
-
-Logs user feedback on workouts. Used to compute engagement metrics and feedback.
 
 ```csv
 feedback_id,session_id,user_id,workout_id,liked,feedback_time
 1,14551,788,103,1,2025-04-06T15:24:41Z
-2,7222,357,436,1,2024-11-30T12:35:41Z
-3,25121,1409,271,0,2025-05-23T18:57:41Z
 ```
-
 * `liked` is `1` if user liked the workout
 
 
----
 ### `users.csv`
-
 
 ```csv
 user_id,age_group,fitness_level,preferred_types
 1,18-25,Beginner,"walking,cycling,cardio"
 2,26-35,Advanced,cardio
-3,18-25,Advanced,"yoga,boxing"
 ```
 
----
-
 ### `augmented_workouts.json`
-
-Metadata for workouts. Used to display titles/tags and by OpenSearch index.
-
 ```json
 [
   {
@@ -223,22 +196,10 @@ Metadata for workouts. Used to display titles/tags and by OpenSearch index.
     "duration": 30,
     "tags": ["calm", "stretch", "low-impact"]
   },
-  {
-    "workout_id": "w456",
-    "title": "20-Minute HIIT Burner",
-    "instructor": "Jamie Lee",
-    "instructor_id": "i20",
-    "workout_type": "HIIT",
-    "fitness_level": "Intermediate",
-    "duration": 20,
-    "tags": ["intense", "cardio", "burn"]
-  }
 ]
 ```
 
----
-
-### SQL Schema Reference (MySQL)
+### MySQL
 
 | Table                     | Purpose                               |
 | ------------------------- | ------------------------------------- |
@@ -249,12 +210,12 @@ Metadata for workouts. Used to display titles/tags and by OpenSearch index.
 | `flags`                   | Stores instructor-level quality flags |
 
 
+---
 
-### Key Takeaways
+## Key Highlights
 
-* **Cold-start problem** is solved via **precomputed segment matching**
-* **No runtime model needed** for first-time recommendations
-* System supports **scaling** to millions of users with minimal latency
-* Allows seamless integration with **OpenSearch**, **MySQL**, or **static files**
-* Modular enough to support evolution to **hybrid or neural models** later
-
+* **Cold-start solved** via **offline precomputation** and **online segment-matching**
+* **No training needed** at runtime
+* **Scalable** to millions of users
+* **Modular** architecture ready for hybrid or neural extensions
+* **Industry-ready**: combines ranking theory, information retrieval, and recommender system best practices
