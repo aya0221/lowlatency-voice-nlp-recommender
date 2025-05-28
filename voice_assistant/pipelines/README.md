@@ -110,7 +110,7 @@ $$
 ## Output
 
 * Final output:
-  `data/user_datanase/segment_recommendations.csv`
+  `./voice_assistant/data/user_datanase/segment_recommendations.csv`
   Contains **721 top-5 recommendations** across all segments.
 
 ```csv
@@ -131,6 +131,19 @@ This file can be directly used in production onboarding or batch delivery with z
 * **MMR diversity** reduces content repetition
 * **Scalable** to millions of users with offline batch mode
 
+
+---
+### Runtime Flow Demo of CLI Cold-Start
+
+Running `./voice_assistant/onboarding_coldstart/onboarding_cli.py` executes:
+
+- Collects user profile (age → age group, level, types)
+- Forms keys like `26-35|Intermediate|Cycling`
+- Reads from `segment_recommendations.csv` for top precomputed workout IDs
+- Joins with `augmented_workouts.json` to show:
+   * `title`, `instructor`, `tags`, and `score`
+5. Renders a top-10 ranked list
+![CLI Onboarding Demo](../assets/onbording_demo_cli.png)
 
 ---
 ## Each Dataset's contents:
