@@ -28,9 +28,9 @@ Python 3.11, `pandas`, `numpy`, `scikit-learn`, `TfidfVectorizer`, `cosine_simil
 
 Users are mapped to segments defined as:
 
-$$
+```math
 \text{SegmentKey} = \text{AgeGroup} \times \text{FitnessLevel} \times \text{PreferredWorkoutType}
-$$
+```
 
 Example: `"26-35|Intermediate|Cycling"`
 
@@ -42,9 +42,9 @@ Example: `"26-35|Intermediate|Cycling"`
 
 Each workout $w$ in a segment is assigned a composite engagement score:
 
-$$
+```math
 \text{Score}_{\text{raw}}(w) = \alpha \cdot \frac{c_w}{v_w} + \beta \cdot \frac{s_w}{n_w} + \gamma \cdot \frac{v_w}{\max_{w'} v_{w'}}
-$$
+```
 
 Where:
 
@@ -81,9 +81,9 @@ These values replace the raw rates in the scoring function for improved stabilit
 
 Older workouts are downweighted via exponential time decay:
 
-$$
+```math
 \text{Score}_{\text{fresh}} = \text{Score} \cdot e^{-\lambda \cdot \text{AgeInDays}}, \quad \lambda = 0.01
-$$
+```
 
 → More recent workouts are promoted, reducing content staleness.
 
@@ -93,9 +93,9 @@ $$
 
 To prevent similar-tagged workouts from dominating recommendations, top-20 candidates per segment are reranked with Maximal Marginal Relevance:
 
-$$
+```math
 \text{MMR}(d) = \lambda \cdot \text{Rel}(d) - (1 - \lambda) \cdot \max_{s \in S} \text{Sim}(d, s)
-$$
+```
 
 * $\text{Rel}(d)$: TF-IDF self-relevance (diagonal of similarity matrix)
 * $\text{Sim}(d, s)$: cosine similarity between workout tag vectors
