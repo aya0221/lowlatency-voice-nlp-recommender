@@ -225,97 +225,105 @@ Insert the new section **right after** `## OpenSearch Ranking Engine` and **befo
 
 Here is the complete section to insert:
 
+
 ---
 
 ## Cold-Start Recommendation Pipeline (Segment-Based Personalization)
 
-This module addresses the cold-start problem by **precomputing personalized recommendations** per user segment (based on profile only) using statistical and algorithmic techniques — eliminating the need for runtime models.
+This implementation generates instant personalized workout recommendations for new users by precomputing top-k workouts per profile segment — using offline scoring, smoothing, freshness decay, and diversity reranking with no runtime model or backend required.
+
+---
 
 ### 1. Segment Formation
 
-Each user is bucketed into a unique segment via categorical cross keying:
+Each user is mapped to one or more segments using cross-keying:
 
 ```math
-\text{Segment Key} = \text{Age Group} \times \text{Fitness Level} \times \text{Workout Type}
+\text{SegmentKey} = \text{AgeGroup} \times \text{FitnessLevel} \times \text{PreferredWorkoutType}
 ```
 
-Example: `26-35|Intermediate|Cycling`
+Example:
+`26-35|Intermediate|Cycling`
 
-This forms **fine-grained personalization segments** (∼200–1000+ unique keys), supporting granular cold-start logic.
+This produces **144 fine-grained segments** from combinations of 2000 users and their declared preferences.
 
 ---
 
 ### 2. Engagement Scoring (Offline)
 
-Each workout within a segment is assigned a score using a weighted heuristic:
+For each segment–workout pair, an engagement score is computed based on:
 
 ```math
-\text{Score} = \alpha \cdot \text{completion\_rate} + \beta \cdot \text{like\_rate} + \gamma \cdot \text{views}_{norm}
+\text{RawScore} = \alpha \cdot \text{CompletionRate} + \beta \cdot \text{LikeRate} + \gamma \cdot \text{Views}_{norm}
 ```
 
 Where:
 
-* `completion_rate = completed / started`
-* `like_rate = likes / views`
-* `views_norm` = z-score normalized view count (per segment)
-* `α, β, γ` are tunable weights (e.g. 0.5, 0.3, 0.2)
+* `CompletionRate = #Completed / #Viewed`
+* `LikeRate = #Liked / #Feedbacks`
+* `Views_norm = \text{Views} / \max(\text{Views})`
+* Tunable weights: `α = 0.5`, `β = 0.4`, `γ = 0.1`
 
 ---
 
 ### 3. Bayesian Smoothing
 
-Used when engagement data is sparse (few sessions per workout):
+Used to reduce variance under sparse data:
 
 ```math
-\hat{r} = \frac{s + \alpha_0}{n + \alpha_0 + \beta_0}
+\hat{p} = \frac{s + \alpha_0}{n + \alpha_0 + \beta_0}
 ```
 
 Where:
 
-* `s` = observed success count (e.g. likes)
-* `n` = total trials (e.g. views)
-* `α₀, β₀` = prior (Beta distribution); avoids overfitting
+* `s`: observed completions or likes
+* `n`: total views or feedbacks
+* Prior: `Beta(2, 2)`
+
+This applies separately to both completion and like rates before computing the final score.
 
 ---
 
 ### 4. Freshness Weighting
 
-To prioritize new workouts and avoid stale content, we apply exponential decay:
+To promote recently engaged workouts, we apply time-based exponential decay:
 
 ```math
-\text{Score}_{fresh} = \text{Score} \cdot e^{- \lambda \cdot \text{days\_old}}
+\text{Score}_{\text{fresh}} = \text{Score} \cdot e^{- \lambda \cdot \text{daysOld}}
 ```
 
-Typically, `λ` = 0.01–0.05 based on desired decay horizon.
+With decay factor `λ = 0.01`.
+This boosts newer content in each segment.
 
 ---
 
-### 5. Diversity Reranking (Optional)
+### 5. Diversity Reranking (MMR)
 
-We rerank top-k per segment via **MMR (Maximal Marginal Relevance)** to ensure tag diversity:
+From the top-20 scored workouts in each segment, **Maximal Marginal Relevance** reranks the final top-5 based on tag diversity:
 
 ```math
-\text{MMR} = \arg\max_{d \in R \setminus S} \left[ \lambda \cdot \text{Rel}(d) - (1 - \lambda) \cdot \max_{s \in S} \text{Sim}(d, s) \right]
+\text{MMR}(d) = \lambda \cdot \text{Rel}(d) - (1 - \lambda) \cdot \max_{s \in S} \text{Sim}(d, s)
 ```
 
-Where:
-
-* `Rel(d)` = base score
-* `Sim(d, s)` = tag vector cosine similarity
+* `Rel(d)`: self-similarity (TF-IDF tag vector)
+* `Sim(d, s)`: cosine similarity of tags
+* `λ = 0.5`: relevance vs. diversity balance
 
 ---
 
 ### Runtime Flow: CLI Cold-Start Demo
 
-Running `onboarding_coldstart/onboarding_cli.py` executes:
+Running `onboarding_coldstart/onboarding_cli.py` performs:
 
-1. Collects user profile (age → age group, level, types)
-2. Forms keys like `26-35|Intermediate|Cycling`
-3. Reads from `segment_recommendations.csv` for top precomputed workout IDs
-4. Joins with `augmented_workouts.json` to show:
+1. Accepts user input: age, fitness level, workout preferences
+2. Forms one or more segment keys, e.g., `26-35|Advanced|Cycling`
+3. Looks up segment recommendations in `segment_recommendations.csv`
+4. Joins with metadata from `augmented_workouts.json`
+5. Displays top-10 workouts with:
 
    * `title`, `instructor`, `tags`, and `score`
-5. Renders a top-10 ranked list — no DB or ASR required
+
+✅ No database or server needed — everything is precomputed and resolved locally.
 
 ![CLI Onboarding Demo](./assets/onbording_demo_cli.png)
 
